@@ -1,0 +1,24 @@
+--cpu=Cortex-M4.fp.sp
+"bms_proj\startup_stm32g474xx.o"
+"bms_proj\main.o"
+"bms_proj\gpio.o"
+"bms_proj\stm32g4xx_it.o"
+"bms_proj\stm32g4xx_hal_msp.o"
+"bms_proj\stm32g4xx_hal_pwr_ex.o"
+"bms_proj\stm32g4xx_hal.o"
+"bms_proj\stm32g4xx_hal_rcc.o"
+"bms_proj\stm32g4xx_hal_rcc_ex.o"
+"bms_proj\stm32g4xx_hal_flash.o"
+"bms_proj\stm32g4xx_hal_flash_ex.o"
+"bms_proj\stm32g4xx_hal_flash_ramfunc.o"
+"bms_proj\stm32g4xx_hal_gpio.o"
+"bms_proj\stm32g4xx_hal_exti.o"
+"bms_proj\stm32g4xx_hal_dma.o"
+"bms_proj\stm32g4xx_hal_dma_ex.o"
+"bms_proj\stm32g4xx_hal_pwr.o"
+"bms_proj\stm32g4xx_hal_cortex.o"
+"bms_proj\system_stm32g4xx.o"
+--strict --scatter "stm32g474xx_flash.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "bms_proj.map" -o bms_proj\bms_proj.axf
