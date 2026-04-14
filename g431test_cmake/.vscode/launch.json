@@ -1,0 +1,20 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug STM32G4",
+            "cwd": "${workspaceRoot}",
+            "executable": "build/Debug/${workspaceFolderBasename}.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "servertype": "openocd",
+            "preLaunchTask": "Build",
+            "configFiles": [
+                "interface/stlink.cfg",
+                "target/stm32g4x.cfg"   // G4 系列专用配置
+            ],
+            "svdFile": "${workspaceRoot}/STM32G474xx.svd",  // 可选，寄存器查看
+            "showDevDebugOutput": "none"
+        }
+    ]
+}
