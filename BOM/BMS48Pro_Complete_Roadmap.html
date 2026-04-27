@@ -1,0 +1,1182 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BMS-48Pro 完整项目规划</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,700;1,400&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap');
+
+:root {
+  --bg:      #06090f;
+  --bg2:     #0b1018;
+  --card:    #0f1824;
+  --card2:   #141f30;
+  --border:  #182840;
+  --border2: #1e3254;
+  --text:    #d8e8f5;
+  --muted:   #4a6585;
+  --dim:     #2a3f5a;
+
+  /* Phase colors */
+  --p1: #00d4ff;
+  --p2: #ff6b35;
+  --p3: #a78bfa;
+  --p4: #34d399;
+  --p5: #fbbf24;
+  --p6: #f472b6;
+  --p7: #38bdf8;
+  --p8: #fb923c;
+  --p9: #4ade80;
+  --l6: #e879f9;  /* L610 accent */
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans SC', sans-serif;
+  font-weight: 300;
+  line-height: 1.7;
+  min-height: 100vh;
+}
+
+/* ─── scanline bg ─── */
+body::before {
+  content:'';
+  position:fixed; inset:0; z-index:0; pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 10%, rgba(0,212,255,.04) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 80%, rgba(232,121,249,.03) 0%, transparent 60%),
+    repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(0,212,255,.015) 40px);
+}
+
+.wrap { max-width:1160px; margin:0 auto; padding:48px 24px 100px; position:relative; z-index:1; }
+
+/* ─── HEADER ─── */
+.hdr { text-align:center; margin-bottom:64px; }
+.hdr-eyebrow {
+  display:inline-flex; align-items:center; gap:10px;
+  font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:3px;
+  text-transform:uppercase; color:var(--p1);
+  border:1px solid rgba(0,212,255,.25); padding:5px 18px;
+  background:rgba(0,212,255,.05); margin-bottom:20px;
+}
+.hdr-eyebrow span { width:6px;height:6px;border-radius:50%;background:var(--p1);animation:pulse 2s infinite; }
+@keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+
+h1 {
+  font-size:clamp(32px,6vw,58px); font-weight:900;
+  letter-spacing:-2px; line-height:1.05; margin-bottom:14px;
+}
+h1 .a { color:var(--p1); }
+h1 .b { color:var(--p2); }
+h1 .c { color:var(--l6); }
+
+.hdr-sub {
+  font-family:'JetBrains Mono',monospace; font-size:12px;
+  color:var(--muted); letter-spacing:1px;
+}
+
+/* ─── STRATEGY BANNER ─── */
+.strategy {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+  gap:1px; background:var(--border); border:1px solid var(--border);
+  margin-bottom:56px; overflow:hidden;
+}
+.strat-item {
+  background:var(--card); padding:20px 22px;
+  display:flex; flex-direction:column; gap:6px;
+}
+.strat-label {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  letter-spacing:2px; text-transform:uppercase; color:var(--muted);
+}
+.strat-val { font-size:15px; font-weight:700; }
+
+/* ─── L610 HIGHLIGHT BOX ─── */
+.l610-box {
+  background: linear-gradient(135deg, rgba(232,121,249,.06) 0%, rgba(0,212,255,.04) 100%);
+  border:1px solid rgba(232,121,249,.3);
+  border-left:4px solid var(--l6);
+  padding:24px 28px; margin-bottom:48px;
+}
+.l610-box h3 {
+  font-family:'JetBrains Mono',monospace; font-size:12px;
+  letter-spacing:2px; text-transform:uppercase; color:var(--l6);
+  margin-bottom:14px;
+}
+.l610-grid {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+  gap:16px; margin-top:12px;
+}
+.l610-card {
+  background:rgba(0,0,0,.3); border:1px solid rgba(232,121,249,.15);
+  padding:14px 16px; border-radius:2px;
+}
+.l610-card-title {
+  font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700;
+  color:var(--l6); margin-bottom:8px;
+}
+.l610-card p { font-size:12px; color:#94a3b8; line-height:1.6; }
+.badge-winner {
+  display:inline-block; font-family:'JetBrains Mono',monospace;
+  font-size:9px; letter-spacing:2px; text-transform:uppercase;
+  background:rgba(232,121,249,.2); color:var(--l6);
+  border:1px solid rgba(232,121,249,.4); padding:2px 8px; margin-left:8px; vertical-align:middle;
+}
+
+/* ─── SECTION TITLE ─── */
+.sec-title {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  letter-spacing:3px; text-transform:uppercase;
+  margin-bottom:28px; display:flex; align-items:center; gap:14px;
+}
+.sec-title::after {
+  content:''; flex:1; height:1px; background:var(--border2);
+}
+
+/* ─── GANTT CHART ─── */
+.gantt-wrap { margin-bottom:56px; overflow-x:auto; }
+.gantt {
+  min-width:700px; background:var(--card);
+  border:1px solid var(--border); padding:24px;
+}
+.gantt-weeks {
+  display:grid; font-family:'JetBrains Mono',monospace;
+  font-size:10px; color:var(--muted); margin-bottom:10px;
+  padding-left:160px; gap:0;
+}
+.gantt-weeks-inner {
+  display:grid;
+  grid-template-columns: repeat(12, 1fr);
+  gap:0;
+}
+.gantt-weeks-inner span { text-align:center; }
+
+.gantt-row {
+  display:grid; grid-template-columns:160px 1fr;
+  gap:0; margin-bottom:8px; align-items:center;
+}
+.gantt-label {
+  font-size:12px; color:var(--text); padding-right:12px;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+}
+.gantt-label span {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  margin-right:6px;
+}
+.gantt-track {
+  height:22px; background:rgba(255,255,255,.03);
+  border:1px solid var(--border); position:relative;
+  display:grid; grid-template-columns:repeat(12,1fr);
+}
+.gantt-bar {
+  position:absolute; height:100%; border-radius:1px;
+  display:flex; align-items:center; padding-left:8px;
+  font-family:'JetBrains Mono',monospace; font-size:9px;
+  font-weight:700; letter-spacing:.5px; white-space:nowrap;
+  overflow:hidden;
+}
+.gantt-track-grid {
+  position:absolute; inset:0;
+  display:grid; grid-template-columns:repeat(12,1fr);
+  pointer-events:none;
+}
+.gantt-track-grid span {
+  border-right:1px solid rgba(255,255,255,.03);
+}
+.gantt-track-grid span:last-child { border-right:none; }
+
+/* ─── PHASE TIMELINE ─── */
+.timeline { display:flex; flex-direction:column; gap:0; }
+
+.phase {
+  display:grid; grid-template-columns:52px 1fr;
+  gap:0;
+}
+.phase-spine {
+  display:flex; flex-direction:column; align-items:center;
+}
+.phase-dot {
+  width:44px; height:44px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'JetBrains Mono',monospace; font-weight:700; font-size:14px;
+  border:2px solid; background:var(--bg); flex-shrink:0; z-index:1;
+}
+.phase-vline {
+  width:2px; flex:1; margin:4px auto; opacity:.2; min-height:24px;
+}
+.phase:last-child .phase-vline { opacity:0; }
+
+.phase-content { padding:0 0 40px 22px; }
+
+.phase-head {
+  display:flex; align-items:baseline; flex-wrap:wrap;
+  gap:10px; margin-bottom:6px; padding-top:10px;
+}
+.phase-name { font-size:18px; font-weight:700; letter-spacing:-.3px; }
+.phase-time {
+  font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--muted);
+}
+.phase-desc { font-size:13px; color:var(--muted); margin-bottom:18px; }
+
+/* Task cards */
+.tasks { display:flex; flex-direction:column; gap:8px; }
+
+.task {
+  background:var(--card); border:1px solid var(--border);
+  padding:14px 18px; display:grid;
+  grid-template-columns:190px 1fr; gap:14px; align-items:start;
+  font-size:13px;
+}
+.task-key {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  font-weight:700; line-height:1.5;
+}
+.task-val { color:#8fafc8; line-height:1.6; }
+.task-val code {
+  font-family:'JetBrains Mono',monospace; font-size:11px;
+  background:rgba(0,212,255,.08); color:var(--p1);
+  padding:1px 6px; border-radius:2px;
+}
+
+/* Code snippet */
+.snippet {
+  background:var(--bg2); border:1px solid var(--border);
+  border-left:3px solid; margin-top:12px; padding:14px 18px;
+  font-family:'JetBrains Mono',monospace; font-size:11.5px;
+  color:#7a98b5; line-height:1.85; white-space:pre; overflow-x:auto;
+}
+.snippet .kw  { color:var(--p1); }
+.snippet .cls { color:#a78bfa; }
+.snippet .str { color:#34d399; }
+.snippet .cmt { color:#364f6e; font-style:italic; }
+.snippet .num { color:#fb923c; }
+
+/* deliverables */
+.delivs { display:flex; flex-wrap:wrap; gap:7px; margin-top:14px; }
+.deliv {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  letter-spacing:.5px; padding:3px 10px;
+  border:1px solid; border-radius:2px;
+}
+
+/* sub-section */
+.sub { background:var(--card2); border:1px solid var(--border); padding:16px 18px; margin-top:12px; }
+.sub-title {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  letter-spacing:2px; text-transform:uppercase; margin-bottom:12px;
+}
+.sub-grid {
+  display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:12px;
+}
+.sub-card {
+  background:rgba(0,0,0,.25); border:1px solid var(--border);
+  padding:12px 14px;
+}
+.sub-card-title {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  font-weight:700; margin-bottom:8px;
+}
+.sub-card ul { list-style:none; font-size:12px; color:#7090b0; }
+.sub-card ul li { padding:2px 0; }
+.sub-card ul li::before { content:"› "; color:var(--muted); }
+
+/* ─── INTERFACE TABLE ─── */
+.iface-wrap {
+  background:var(--card); border:1px solid var(--border);
+  border-top:3px solid var(--p1); margin-bottom:48px; overflow-x:auto;
+}
+.iface-title {
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  letter-spacing:3px; text-transform:uppercase; color:var(--p1);
+  padding:16px 22px 12px;
+}
+table { width:100%; border-collapse:collapse; font-size:12.5px; }
+th {
+  text-align:left; padding:8px 16px;
+  font-family:'JetBrains Mono',monospace; font-size:10px;
+  letter-spacing:1px; text-transform:uppercase; color:var(--muted);
+  border-bottom:1px solid var(--border2); font-weight:400;
+}
+td { padding:11px 16px; border-bottom:1px solid rgba(24,40,64,.6); vertical-align:top; }
+tr:last-child td { border-bottom:none; }
+td:first-child {
+  font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--p1);
+  white-space:nowrap;
+}
+.tag {
+  display:inline-block; font-family:'JetBrains Mono',monospace;
+  font-size:9px; padding:2px 7px; border-radius:2px; margin:1px;
+}
+
+/* ─── ARCH DIAGRAM ─── */
+.arch-wrap { margin-bottom:48px; }
+.arch-diagram {
+  background:var(--card); border:1px solid var(--border);
+  padding:28px; font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+}
+.arch-layers { display:flex; flex-direction:column; gap:2px; }
+.arch-layer {
+  display:grid; gap:2px;
+  grid-template-columns: 90px 1fr;
+}
+.arch-layer-label {
+  background:rgba(0,0,0,.4); padding:10px 12px;
+  font-size:10px; letter-spacing:1.5px; text-transform:uppercase;
+  color:var(--muted); display:flex; align-items:center;
+}
+.arch-layer-boxes {
+  display:flex; flex-wrap:wrap; gap:2px;
+}
+.arch-box {
+  padding:10px 16px; font-size:11px; font-weight:700;
+  display:flex; align-items:center; gap:8px; flex:1; min-width:120px;
+}
+.arch-arrow {
+  text-align:center; padding:6px; color:var(--dim); font-size:14px;
+  grid-column:1/-1;
+}
+
+/* ─── RISK TABLE ─── */
+.risk-wrap { margin-bottom:48px; }
+.risk-row {
+  display:grid; grid-template-columns:180px 60px 1fr;
+  gap:0; border-bottom:1px solid var(--border);
+}
+.risk-row:last-child { border-bottom:none; }
+.risk-item { padding:12px 16px; font-size:12.5px; }
+.risk-item:first-child {
+  font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text);
+}
+.level {
+  display:inline-block; font-family:'JetBrains Mono',monospace;
+  font-size:9px; letter-spacing:1px; padding:2px 7px; border-radius:2px;
+}
+.level-hi { background:rgba(244,114,182,.15); color:#f472b6; border:1px solid rgba(244,114,182,.3); }
+.level-md { background:rgba(251,191,36,.12); color:#fbbf24; border:1px solid rgba(251,191,36,.3); }
+.level-lo { background:rgba(52,211,153,.1); color:#34d399; border:1px solid rgba(52,211,153,.3); }
+
+/* phase color helpers */
+.c1 { --pc:var(--p1); } .c2 { --pc:var(--p2); } .c3 { --pc:var(--p3); }
+.c4 { --pc:var(--p4); } .c5 { --pc:var(--p5); } .c6 { --pc:var(--p6); }
+.c7 { --pc:var(--p7); } .c8 { --pc:var(--p8); } .c9 { --pc:var(--p9); }
+.cl { --pc:var(--l6); }
+
+.phase-dot  { border-color:var(--pc); color:var(--pc); }
+.phase-vline { background:var(--pc); }
+.phase-name  { color:var(--pc); }
+.task-key    { color:var(--pc); }
+.snippet     { border-left-color:var(--pc); }
+.deliv       { border-color:color-mix(in srgb,var(--pc) 40%,transparent);
+               color:var(--pc); background:color-mix(in srgb,var(--pc) 8%,transparent); }
+.sub-title   { color:var(--pc); }
+.sub-card-title { color:var(--pc); }
+
+@media(max-width:640px){
+  .task { grid-template-columns:1fr; }
+  .gantt-row { grid-template-columns:120px 1fr; }
+  .gantt-label { font-size:10px; }
+  .arch-layer { grid-template-columns:60px 1fr; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ══════════════════════════════════ HEADER ══════════════════════════════════ -->
+<div class="hdr">
+  <div class="hdr-eyebrow"><span></span>嵌入式竞赛完整项目规划 · 从零到参赛</div>
+  <h1><span class="a">BMS-48Pro</span> + <span class="b">G474RET</span> + <span class="c">L610</span></h1>
+  <p class="hdr-sub">STM32G474RET · FreeRTOS · BQ76940 · BQ34Z100 · L610 4G · Qt上位机 · 全链路规划</p>
+</div>
+
+<!-- ══════════════════════════════════ STRATEGY ══════════════════════════════════ -->
+<div class="strategy">
+  <div class="strat-item">
+    <span class="strat-label">总周期</span>
+    <span class="strat-val" style="color:var(--p1)">10～11 周</span>
+  </div>
+  <div class="strat-item">
+    <span class="strat-label">竞赛亮点</span>
+    <span class="strat-val" style="color:var(--l6)">L610 MQTT云监控</span>
+  </div>
+  <div class="strat-item">
+    <span class="strat-label">主控芯片</span>
+    <span class="strat-val" style="color:var(--p2)">STM32G474RET</span>
+  </div>
+  <div class="strat-item">
+    <span class="strat-label">上位机</span>
+    <span class="strat-val" style="color:var(--p7)">Qt 5.15 / Windows</span>
+  </div>
+  <div class="strat-item">
+    <span class="strat-label">核心任务数</span>
+    <span class="strat-val" style="color:var(--p4)">7 个 FreeRTOS 任务</span>
+  </div>
+  <div class="strat-item">
+    <span class="strat-label">通信协议</span>
+    <span class="strat-val" style="color:var(--p5)">UART · CAN · MQTT · TCP</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ L610 HIGHLIGHT ══════════════════════════════════ -->
+<div class="l610-box">
+  <h3>// L610 模块定位策略 — 最大竞赛亮点</h3>
+  <p style="font-size:13px;color:#8fafc8;margin-bottom:16px">
+    L610（移远 4G Cat.1 模块）通过 UART AT指令与G474通信，支持 TCP/MQTT/HTTP。
+    推荐方案：<strong style="color:var(--l6)">MQTT接入阿里云IoT / EMQX</strong>，实现BMS数据云端存储+手机端实时查看+远程报警短信。
+    这是普通同学用ESP8266绝对做不到的层级，评委见到"4G + 云平台"必然加分。
+  </p>
+  <div class="l610-grid">
+    <div class="l610-card">
+      <div class="l610-card-title">方案A：MQTT云监控 <span class="badge-winner">★ 推荐</span></div>
+      <p>L610 AT指令建立MQTT连接到阿里云/EMQX，G474定时发布BMS状态JSON。手机App（MQTT Dashboard）实时查看，Qt上位机同时订阅同一Topic。无需服务器，云平台免费额度够用。</p>
+    </div>
+    <div class="l610-card">
+      <div class="l610-card-title">方案B：远程报警短信</div>
+      <p>检测到过压/过温/短路等故障时，G474控制L610发送短信到指定手机号。AT+CMGF=1 + AT+CMGS 两条指令实现，演示时现场触发故障，手机秒收短信，冲击力极强。</p>
+    </div>
+    <div class="l610-card">
+      <div class="l610-card-title">方案C：OTA 远程升级</div>
+      <p>L610 HTTP GET从服务器下载新固件.bin，G474 BootLoader通过UART接收写Flash。实现真正意义上的无线远程升级，是技术扩展1"OTA升级"的4G版本。</p>
+    </div>
+    <div class="l610-card">
+      <div class="l610-card-title">最终建议</div>
+      <p style="color:var(--l6)">A + B 组合：平时MQTT上报数据，故障时自动触发短信报警。两个功能共用同一UART，代码量可控，演示效果翻倍。</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ INTERFACE TABLE ══════════════════════════════════ -->
+<div class="sec-title" style="color:var(--p1)">// 01 · G474RET 完整接口分配</div>
+<div class="iface-wrap" style="margin-bottom:48px">
+  <div class="iface-title">// STM32G474RET 外设映射表</div>
+  <table>
+    <thead><tr>
+      <th>外设</th><th>引脚</th><th>协议</th><th>连接器件</th><th>功能</th><th>优先级</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td>I2C1</td><td>PB8/PB9</td>
+        <td><span class="tag" style="background:rgba(0,212,255,.12);color:var(--p1);border:1px solid rgba(0,212,255,.3)">I2C</span></td>
+        <td>BQ76940 + BQ34Z100-G1</td>
+        <td>13串电压采样、NTC温度、总电流；SOC/循环次数/健康度</td>
+        <td><span class="tag" style="background:rgba(244,114,182,.12);color:#f472b6;border:1px solid rgba(244,114,182,.3)">P0 核心</span></td>
+      </tr>
+      <tr>
+        <td>USART3</td><td>PC10/PC11</td>
+        <td><span class="tag" style="background:rgba(0,212,255,.12);color:var(--p1);border:1px solid rgba(0,212,255,.3)">UART</span></td>
+        <td>USB转串口(CH340) → PC</td>
+        <td>Qt上位机主数据通道；调试输出；IAP串口升级</td>
+        <td><span class="tag" style="background:rgba(244,114,182,.12);color:#f472b6;border:1px solid rgba(244,114,182,.3)">P0 核心</span></td>
+      </tr>
+      <tr>
+        <td>USART2</td><td>PA2/PA3</td>
+        <td><span class="tag" style="background:rgba(232,121,249,.12);color:var(--l6);border:1px solid rgba(232,121,249,.3)">AT-CMD</span></td>
+        <td><strong style="color:var(--l6)">L610 模块</strong></td>
+        <td>4G MQTT上报BMS数据；故障短信报警；OTA固件下载</td>
+        <td><span class="tag" style="background:rgba(232,121,249,.12);color:var(--l6);border:1px solid rgba(232,121,249,.3)">★ 亮点</span></td>
+      </tr>
+      <tr>
+        <td>FDCAN1</td><td>PA11/PA12</td>
+        <td><span class="tag" style="background:rgba(255,107,53,.12);color:var(--p2);border:1px solid rgba(255,107,53,.3)">CAN FD</span></td>
+        <td>CAN收发器(TJA1051)</td>
+        <td>与AGV主控/仪表盘通信；多BMS节点组网</td>
+        <td><span class="tag" style="background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.3)">P1 扩展</span></td>
+      </tr>
+      <tr>
+        <td>SPI1</td><td>PA5/PA6/PA7+CS</td>
+        <td><span class="tag" style="background:rgba(52,211,153,.12);color:var(--p4);border:1px solid rgba(52,211,153,.3)">SPI</span></td>
+        <td>W5500 以太网模块</td>
+        <td>有线TCP连接Qt；局域网远程监控备选</td>
+        <td><span class="tag" style="background:rgba(96,165,250,.12);color:#60a5fa;border:1px solid rgba(96,165,250,.3)">P2 可选</span></td>
+      </tr>
+      <tr>
+        <td>GPIO × 4</td><td>PC6/PC7/PC8/PC9</td>
+        <td><span class="tag" style="background:rgba(167,139,250,.12);color:var(--p3);border:1px solid rgba(167,139,250,.3)">GPIO</span></td>
+        <td>BQ76940 ALERT/BOOT + BQ76200 MOS控制</td>
+        <td>故障中断输入；主回路MOS管通断控制</td>
+        <td><span class="tag" style="background:rgba(244,114,182,.12);color:#f472b6;border:1px solid rgba(244,114,182,.3)">P0 核心</span></td>
+      </tr>
+      <tr>
+        <td>ADC1</td><td>PA0/PA1</td>
+        <td><span class="tag" style="background:rgba(251,191,36,.12);color:#fbbf24;border:1px solid rgba(251,191,36,.3)">ADC</span></td>
+        <td>外部NTC / 辅助电流采样</td>
+        <td>BQ76940内置ADC辅助；外部温度补偿</td>
+        <td><span class="tag" style="background:rgba(96,165,250,.12);color:#60a5fa;border:1px solid rgba(96,165,250,.3)">P2 可选</span></td>
+      </tr>
+      <tr>
+        <td>IWDG</td><td>内部</td>
+        <td><span class="tag" style="background:rgba(52,211,153,.12);color:var(--p4);border:1px solid rgba(52,211,153,.3)">WDG</span></td>
+        <td>—</td>
+        <td>独立看门狗；FreeRTOS任务喂狗，防止死锁失控</td>
+        <td><span class="tag" style="background:rgba(244,114,182,.12);color:#f472b6;border:1px solid rgba(244,114,182,.3)">P0 核心</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══════════════════════════════════ GANTT ══════════════════════════════════ -->
+<div class="sec-title" style="color:var(--p5)">// 02 · 11周甘特图</div>
+<div class="gantt-wrap">
+<div class="gantt">
+  <div style="font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);padding-left:160px;display:grid;">
+    <div style="display:grid;grid-template-columns:repeat(11,1fr);gap:0">
+      <span style="text-align:center">W1</span><span style="text-align:center">W2</span>
+      <span style="text-align:center">W3</span><span style="text-align:center">W4</span>
+      <span style="text-align:center">W5</span><span style="text-align:center">W6</span>
+      <span style="text-align:center">W7</span><span style="text-align:center">W8</span>
+      <span style="text-align:center">W9</span><span style="text-align:center">W10</span>
+      <span style="text-align:center">W11</span>
+    </div>
+  </div>
+  <div style="height:8px"></div>
+
+  <!-- helper: start=0-indexed week, span=weeks, color -->
+  <style>
+  .gb { position:absolute; height:100%; display:flex; align-items:center;
+        padding-left:8px; font-family:'JetBrains Mono',monospace;
+        font-size:9px; font-weight:700; white-space:nowrap; overflow:hidden; border-radius:1px; }
+  .gt { height:24px; background:rgba(255,255,255,.03); border:1px solid var(--border);
+        position:relative; display:grid; grid-template-columns:repeat(11,1fr); }
+  .gt-grid { position:absolute;inset:0;display:grid;grid-template-columns:repeat(11,1fr);pointer-events:none; }
+  .gt-grid span { border-right:1px solid rgba(255,255,255,.04); }
+  .gr { display:grid; grid-template-columns:160px 1fr; gap:0; margin-bottom:6px; align-items:center; }
+  .gl { font-size:11.5px; padding-right:10px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .gl em { font-family:'JetBrains Mono',monospace; font-size:10px; font-style:normal; margin-right:5px; }
+  </style>
+
+  <div class="gr"><div class="gl"><em style="color:var(--p1)">①</em>环境搭建+外设驱动</div>
+    <div class="gt"><div class="gt-grid"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="gb" style="left:0%;width:18.2%;background:rgba(0,212,255,.25);color:var(--p1)">W1-2</div></div></div>
+
+  <div class="gr"><div class="gl"><em style="color:var(--p2)">②</em>BQ76940 采样保护</div>
+    <div class="gt"><div class="gt-grid"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="gb" style="left:18.2%;width:18.2%;background:rgba(255,107,53,.25);color:var(--p2)">W3-4</div></div></div>
+
+  <div class="gr"><div class="gl"><em style="color:var(--p3)">③</em>FreeRTOS 7任务框架</div>
+    <div class="gt"><div class="gt-grid"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="gb" style="left:27.3%;width:18.2%;background:rgba(167,139,250,.25);color:var(--p3)">W4-5</div></div></div>
+
+  <div class="gr"><div class="gl"><em style="color:var(--p4)">④</em>BQ34Z100 SOC算法</div>
+    <div class="gt"><div class="gt-grid"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="gb" style="left:36.4%;width:9.1%;background:rgba(52,211,153,.25);color:var(--p4)">W5</div></div></div>
+
+  <div class="gr"><div class="gl"><em style="color:var(--l6)">★</em>L610 MQTT+短信</div>
+    <div class="gt"><div class="gt-grid"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="gb" style="left:45.5%;width:18.2%;background:rgba(232,121,249,.25);color:var(--l6)">W6-7</div></div></div>
+
+  <div class="gr"><div class="gl"><em style="color:var(--p7)">⑥</em>Qt上位机全功能</div>
+    <div class="gt"><div class="gt-grid"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="gb" style="left:54.5%;width:27.3%;background:rgba(56,189,248,.25);color:var(--p7)">W7-9</div></div></div>
+
+  <div class="gr"><div class="gl"><em style="color:var(--p8)">⑦</em>IAP BootLoader</div>
+    <div class="gt"><div class="gt-grid"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="gb" style="left:72.7%;width:9.1%;background:rgba(251,146,60,.25);color:var(--p8)">W9</div></div></div>
+
+  <div class="gr"><div class="gl"><em style="color:var(--p9)">⑧</em>集成联调+文档</div>
+    <div class="gt"><div class="gt-grid"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <div class="gb" style="left:81.8%;width:18.2%;background:rgba(74,222,128,.25);color:var(--p9)">W10-11</div></div></div>
+
+</div>
+</div>
+
+<!-- ══════════════════════════════════ ARCHITECTURE ══════════════════════════════════ -->
+<div class="sec-title" style="color:var(--p3)">// 03 · 系统软件架构</div>
+<div class="arch-wrap">
+<div class="arch-diagram">
+  <div class="arch-layers">
+    <div class="arch-layer">
+      <div class="arch-layer-label" style="color:var(--p7)">QT<br>上位机</div>
+      <div class="arch-layer-boxes">
+        <div class="arch-box" style="background:rgba(56,189,248,.1);color:var(--p7);border:1px solid rgba(56,189,248,.2)">📊 实时Dashboard</div>
+        <div class="arch-box" style="background:rgba(56,189,248,.1);color:var(--p7);border:1px solid rgba(56,189,248,.2)">📈 历史波形</div>
+        <div class="arch-box" style="background:rgba(56,189,248,.1);color:var(--p7);border:1px solid rgba(56,189,248,.2)">🔔 故障告警</div>
+        <div class="arch-box" style="background:rgba(56,189,248,.1);color:var(--p7);border:1px solid rgba(56,189,248,.2)">⬆ IAP升级</div>
+        <div class="arch-box" style="background:rgba(232,121,249,.1);color:var(--l6);border:1px solid rgba(232,121,249,.2)">☁ MQTT订阅</div>
+      </div>
+    </div>
+    <div class="arch-arrow">↕ UART(USART3) &nbsp;&nbsp;&nbsp; ↕ MQTT over L610 4G</div>
+    <div class="arch-layer">
+      <div class="arch-layer-label" style="color:var(--p3)">FreeRTOS<br>任务层</div>
+      <div class="arch-layer-boxes">
+        <div class="arch-box" style="background:rgba(167,139,250,.1);color:var(--p3);border:1px solid rgba(167,139,250,.2)">T1 故障保护<br><span style="font-size:9px;opacity:.6">优先级 7(最高)</span></div>
+        <div class="arch-box" style="background:rgba(167,139,250,.1);color:var(--p3);border:1px solid rgba(167,139,250,.2)">T2 电压电流采样<br><span style="font-size:9px;opacity:.6">优先级 6 · 100ms</span></div>
+        <div class="arch-box" style="background:rgba(167,139,250,.1);color:var(--p3);border:1px solid rgba(167,139,250,.2)">T3 均衡控制<br><span style="font-size:9px;opacity:.6">优先级 5 · 500ms</span></div>
+        <div class="arch-box" style="background:rgba(167,139,250,.1);color:var(--p3);border:1px solid rgba(167,139,250,.2)">T4 SOC计算<br><span style="font-size:9px;opacity:.6">优先级 4 · 1s</span></div>
+        <div class="arch-box" style="background:rgba(167,139,250,.1);color:var(--p3);border:1px solid rgba(167,139,250,.2)">T5 CAN通信<br><span style="font-size:9px;opacity:.6">优先级 3</span></div>
+        <div class="arch-box" style="background:rgba(232,121,249,.12);color:var(--l6);border:1px solid rgba(232,121,249,.25)">T6 L610 MQTT<br><span style="font-size:9px;opacity:.6">优先级 2 · 5s上报</span></div>
+        <div class="arch-box" style="background:rgba(167,139,250,.1);color:var(--p3);border:1px solid rgba(167,139,250,.2)">T7 辅助功能<br><span style="font-size:9px;opacity:.6">优先级 1(最低)</span></div>
+      </div>
+    </div>
+    <div class="arch-arrow">↕ HAL驱动层</div>
+    <div class="arch-layer">
+      <div class="arch-layer-label" style="color:var(--p2)">硬件层</div>
+      <div class="arch-layer-boxes">
+        <div class="arch-box" style="background:rgba(255,107,53,.1);color:var(--p2);border:1px solid rgba(255,107,53,.2)">BQ76940<br>I2C1</div>
+        <div class="arch-box" style="background:rgba(255,107,53,.1);color:var(--p2);border:1px solid rgba(255,107,53,.2)">BQ34Z100<br>I2C1</div>
+        <div class="arch-box" style="background:rgba(255,107,53,.1);color:var(--p2);border:1px solid rgba(255,107,53,.2)">BQ76200<br>GPIO MOS</div>
+        <div class="arch-box" style="background:rgba(232,121,249,.12);color:var(--l6);border:1px solid rgba(232,121,249,.25)">L610 4G<br>USART2</div>
+        <div class="arch-box" style="background:rgba(255,107,53,.1);color:var(--p2);border:1px solid rgba(255,107,53,.2)">FDCAN1<br>TJA1051</div>
+        <div class="arch-box" style="background:rgba(255,107,53,.1);color:var(--p2);border:1px solid rgba(255,107,53,.2)">USART3<br>CH340→PC</div>
+        <div class="arch-box" style="background:rgba(255,107,53,.1);color:var(--p2);border:1px solid rgba(255,107,53,.2)">IWDG<br>看门狗</div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ══════════════════════════════════ PHASES ══════════════════════════════════ -->
+<div class="sec-title" style="color:var(--p1)">// 04 · 分阶段详细开发路线</div>
+<div class="timeline">
+
+<!-- ────── PHASE 1 ────── -->
+<div class="phase c1">
+  <div class="phase-spine">
+    <div class="phase-dot">01</div>
+    <div class="phase-vline"></div>
+  </div>
+  <div class="phase-content">
+    <div class="phase-head">
+      <span class="phase-name">开发环境搭建 + 基础外设验证</span>
+      <span class="phase-time">W1 ~ W2 &nbsp;|&nbsp; 约14天</span>
+    </div>
+    <p class="phase-desc">从零建立完整开发环境，打通所有芯片基础通信，是整个项目的地基。不要跳过这一步直接写业务逻辑。</p>
+    <div class="tasks">
+      <div class="task">
+        <span class="task-key">STM32CubeIDE 环境</span>
+        <span class="task-val">安装CubeIDE + CubeMX。G474选用HAL库。开启FPU（G474带硬件浮点，SOC计算用得到）。配置HSE 8MHz + PLL → 170MHz系统频率。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">I2C1 → BQ76940 通信</span>
+        <span class="task-val">CubeMX配置I2C1 PB8/PB9，400kHz Fast Mode。验证：读取BQ76940设备地址(0x18) → 读SYS_STAT寄存器返回0x00即通信正常。先跑通读写，再做业务。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">USART3 → 串口调试</span>
+        <span class="task-val">配置USART3 115200/8N1，重定向<code>printf</code>到串口。后续所有调试信息走这里。接CH340到PC，用串口助手验证输出。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">USART2 → L610 AT握手</span>
+        <span class="task-val">配置USART2 115200，DMA接收。发送<code>AT\r\n</code>，L610返回<code>OK</code>即通信正常。再验证<code>AT+CGSN</code>读IMEI，确认模块功能正常。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">FDCAN1 基础配置</span>
+        <span class="task-val">CubeMX配置FDCAN1，标准帧500Kbps。接TJA1051收发器。用两块板子互发测试帧，或用USB-CAN适配器+PC端软件验证。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">GPIO 中断验证</span>
+        <span class="task-val">BQ76940 ALERT引脚配置为外部中断（下降沿触发）。模拟触发，验证EXTI回调正常执行。BQ76200 MOS控制GPIO输出测试。</span>
+      </div>
+    </div>
+    <div class="delivs">
+      <span class="deliv">✓ CubeIDE工程建立</span>
+      <span class="deliv">✓ I2C读BQ76940成功</span>
+      <span class="deliv">✓ 串口printf输出</span>
+      <span class="deliv">✓ L610返回AT OK</span>
+      <span class="deliv">✓ CAN基础收发</span>
+    </div>
+  </div>
+</div>
+
+<!-- ────── PHASE 2 ────── -->
+<div class="phase c2">
+  <div class="phase-spine">
+    <div class="phase-dot">02</div>
+    <div class="phase-vline"></div>
+  </div>
+  <div class="phase-content">
+    <div class="phase-head">
+      <span class="phase-name">BQ76940 采样 + 保护逻辑</span>
+      <span class="phase-time">W3 ~ W4 &nbsp;|&nbsp; 约14天</span>
+    </div>
+    <p class="phase-desc">BMS核心功能：13节单体电压读取、NTC温度、总电流；过压/欠压/过温/过流/短路五大保护；均衡控制。这是评委最看重的嵌入式核心能力。</p>
+    <div class="tasks">
+      <div class="task">
+        <span class="task-key">BQ76940 寄存器驱动</span>
+        <span class="task-val">编写完整BQ76940驱动库：<code>BQ76940_Init()</code>、<code>BQ76940_ReadAllVoltages()</code>、<code>BQ76940_ReadCurrent()</code>、<code>BQ76940_ReadTemp()</code>。13路电压用VC1~VC15寄存器（跳过VC5/VC10/VC15），每路2字节，100μV/LSB。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">过压/欠压保护</span>
+        <span class="task-val">配置OV_TRIP寄存器（4.2V）、UV_TRIP寄存器（2.8V）。BQ76940硬件自动触发，ALERT引脚拉低→G474中断→读SYS_STAT→控制BQ76200断开MOS。<strong style="color:#f472b6">硬件保护响应时间 &lt;1ms</strong>，竞赛重点。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">过流/短路保护</span>
+        <span class="task-val">配置SCD_THRESH（短路，44mV/Rshunt）和OCD_THRESH（过流，22mV/Rshunt）。短路响应时间70μs，这是BQ76940的硬件级保护，演示时直接短路展示。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">均衡控制逻辑</span>
+        <span class="task-val">读取13节电压 → 找最低电压节 → 其余电压超出阈值(默认10mV)的节写CELLBAL1/2寄存器开启均衡电阻。500ms周期轮询。写入BAL_CTRL寄存器控制内置均衡开关。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">BQ76200 主回路控制</span>
+        <span class="task-val">GPIO控制BQ76200的CHG/DSG引脚。充电过压→断CHG；放电欠压/过流→断DSG；短路→双断。故障恢复后延迟重启逻辑（防止频繁切换）。</span>
+      </div>
+    </div>
+    <div class="snippet" style="--pc:var(--p2)"><span class="cmt">// BQ76940 读13节电压核心逻辑</span>
+<span class="kw">void</span> <span class="cls">BQ76940_ReadAllVoltages</span>(BMS_Data_t *bms) {
+    uint8_t reg = REG_VC1_HI;
+    uint8_t buf[<span class="num">26</span>];  <span class="cmt">// VC1~VC15 各2字节，跳过5/10/15</span>
+    HAL_I2C_Mem_Read(&hi2c1, BQ76940_ADDR, reg, 1, buf, 26, 10);
+    <span class="kw">int</span> idx = 0;
+    <span class="kw">for</span>(<span class="kw">int</span> i = 0; i < 15; i++) {
+        <span class="kw">if</span>(i==4 || i==9 || i==14) <span class="kw">continue</span>; <span class="cmt">// 跳过VC5/10/15</span>
+        uint16_t raw = ((buf[i*2]&0x3F)<<8) | buf[i*2+1];
+        bms->cell_mv[idx++] = raw * 100 / 1000; <span class="cmt">// 单位mV</span>
+    }
+    bms->min_cell = find_min(bms->cell_mv, 13);
+    bms->max_cell = find_max(bms->cell_mv, 13);
+    bms->delta_mv = bms->max_cell - bms->min_cell;
+}</div>
+    <div class="delivs">
+      <span class="deliv">✓ 13节电压实时读取</span>
+      <span class="deliv">✓ NTC温度采样</span>
+      <span class="deliv">✓ 五大保护硬件触发</span>
+      <span class="deliv">✓ 均衡控制逻辑</span>
+      <span class="deliv">✓ MOS断路控制</span>
+    </div>
+  </div>
+</div>
+
+<!-- ────── PHASE 3 ────── -->
+<div class="phase c3">
+  <div class="phase-spine">
+    <div class="phase-dot">03</div>
+    <div class="phase-vline"></div>
+  </div>
+  <div class="phase-content">
+    <div class="phase-head">
+      <span class="phase-name">FreeRTOS 多任务框架</span>
+      <span class="phase-time">W4 ~ W5 &nbsp;|&nbsp; 约10天（与Phase2并行后期）</span>
+    </div>
+    <p class="phase-desc">将前面的驱动代码整合进FreeRTOS 7个任务。优先级设计是关键——故障保护任务必须最高优先级，L610通信最低，确保实时性。</p>
+    <div class="tasks">
+      <div class="task">
+        <span class="task-key">任务优先级设计</span>
+        <span class="task-val">
+          T1故障保护(Pri=7)：ALERT中断信号量触发，&lt;1ms响应断MOS<br>
+          T2采样任务(Pri=6)：100ms周期，读BQ76940电压电流温度<br>
+          T3均衡控制(Pri=5)：500ms周期，依赖T2数据<br>
+          T4 SOC计算(Pri=4)：1s周期，读BQ34Z100<br>
+          T5 CAN通信(Pri=3)：事件驱动，发送BMS帧<br>
+          T6 L610 MQTT(Pri=2)：5s周期上报，故障时立即触发<br>
+          T7辅助(Pri=1)：串口命令解析、看门狗喂狗
+        </span>
+      </div>
+      <div class="task">
+        <span class="task-key">任务间数据共享</span>
+        <span class="task-val">全局<code>BMS_Data_t g_bms</code>结构体 + <code>osMutex</code>互斥锁保护。T2写，其他任务读。故障标志用<code>osEventFlags</code>，T1写入故障位，T6订阅事件立即发报警。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">看门狗集成</span>
+        <span class="task-val">IWDG设置3s超时。T7每1s喂狗一次。T1~T6设置心跳标志位，T7检查所有任务心跳，任意任务死锁超2s未更新 → T7停止喂狗 → 系统复位。这是<strong style="color:#fbbf24">看门狗保护</strong>的完整实现。</span>
+      </div>
+    </div>
+    <div class="snippet" style="--pc:var(--p3)"><span class="cmt">// FreeRTOS 任务结构 (cmsis_os2 写法)</span>
+<span class="cmt">// 故障保护任务 - 最高优先级</span>
+<span class="kw">void</span> <span class="cls">Task_FaultProtect</span>(<span class="kw">void</span> *arg) {
+    <span class="kw">for</span>(;;) {
+        <span class="cmt">// 等待ALERT中断信号量，超时100ms</span>
+        <span class="kw">if</span>(osSemaphoreAcquire(alertSem, 100) == osOK) {
+            uint8_t stat = BQ76940_ReadSysStat();
+            <span class="kw">if</span>(stat & (OV|UV|SCD|OCD|OT)) {
+                BQ76200_DisconnectAll();    <span class="cmt">// 断MOS</span>
+                osEventFlagsSet(faultFlags, stat);  <span class="cmt">// 通知L610任务</span>
+                g_bms.fault_code = stat;
+            }
+        }
+        g_bms.heartbeat[0]++;  <span class="cmt">// 喂看门狗心跳</span>
+    }
+}
+
+<span class="cmt">// BMS数据结构</span>
+<span class="kw">typedef struct</span> {
+    uint16_t cell_mv[<span class="num">13</span>];   <span class="cmt">// 13节电压 mV</span>
+    int16_t  current_ma;     <span class="cmt">// 电流 mA (正=充电)</span>
+    uint8_t  soc;            <span class="cmt">// 剩余电量 %</span>
+    uint8_t  temp_c;         <span class="cmt">// 温度 ℃</span>
+    uint16_t cycle_count;    <span class="cmt">// 循环次数</span>
+    uint8_t  fault_code;     <span class="cmt">// 故障位图</span>
+    uint8_t  heartbeat[7];   <span class="cmt">// 各任务心跳</span>
+} BMS_Data_t;</div>
+    <div class="delivs">
+      <span class="deliv">✓ 7任务并行运行</span>
+      <span class="deliv">✓ 优先级抢占验证</span>
+      <span class="deliv">✓ 互斥锁数据保护</span>
+      <span class="deliv">✓ 看门狗任务监控</span>
+    </div>
+  </div>
+</div>
+
+<!-- ────── PHASE 4 ────── -->
+<div class="phase c4">
+  <div class="phase-spine">
+    <div class="phase-dot">04</div>
+    <div class="phase-vline"></div>
+  </div>
+  <div class="phase-content">
+    <div class="phase-head">
+      <span class="phase-name">BQ34Z100 SOC计算 + 电量管理</span>
+      <span class="phase-time">W5 &nbsp;|&nbsp; 约5天</span>
+    </div>
+    <p class="phase-desc">BQ34Z100-G1通过I2C提供精确的库仑积分SOC、循环次数、健康度（容量学习）。这是区别于简单电压估算SOC的核心技术亮点。</p>
+    <div class="tasks">
+      <div class="task">
+        <span class="task-key">BQ34Z100 初始化</span>
+        <span class="task-val">首次使用需要"学习周期"（满充→完全放电→满充），之后芯片自动校准容量。竞赛前提前完成学习，演示时直接读取精确SOC。I2C地址0xAA，使用标准访问命令。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">关键数据读取</span>
+        <span class="task-val">
+          <code>CMD_StateOfCharge(0x2C)</code> → SOC%<br>
+          <code>CMD_RemainingCapacity(0x10)</code> → 剩余容量mAh<br>
+          <code>CMD_CycleCount(0x2A)</code> → 循环次数<br>
+          <code>CMD_StateOfHealth(0x2E)</code> → 健康度%<br>
+          每秒读取一次，存入<code>g_bms</code>结构体
+        </span>
+      </div>
+      <div class="task">
+        <span class="task-key">容量学习集成</span>
+        <span class="task-val">BQ34Z100自动执行容量学习，每次完整充放电周期后更新FullChargeCapacity。健康度 = 当前满充容量 / 初始额定容量。G474通过I2C读取，通过Qt上位机展示衰减曲线。</span>
+      </div>
+    </div>
+    <div class="delivs">
+      <span class="deliv">✓ 精确SOC读取</span>
+      <span class="deliv">✓ 循环次数统计</span>
+      <span class="deliv">✓ 健康度评估</span>
+      <span class="deliv">✓ 剩余容量mAh</span>
+    </div>
+  </div>
+</div>
+
+<!-- ────── PHASE 5: L610 ────── -->
+<div class="phase cl">
+  <div class="phase-spine">
+    <div class="phase-dot" style="border-color:var(--l6);color:var(--l6)">★</div>
+    <div class="phase-vline" style="background:var(--l6)"></div>
+  </div>
+  <div class="phase-content">
+    <div class="phase-head">
+      <span class="phase-name" style="color:var(--l6)">L610 4G MQTT云监控 + 短信报警</span>
+      <span class="phase-time">W6 ~ W7 &nbsp;|&nbsp; 约14天 &nbsp;|&nbsp; 竞赛最大亮点</span>
+    </div>
+    <p class="phase-desc">L610通过AT指令驱动，MQTT协议接入阿里云IoT平台（免费实例）。G474每5秒上报BMS完整状态，故障时触发短信。Qt上位机同时订阅同一Topic，实现"本地串口+4G云端"双通道监控。</p>
+
+    <div class="sub" style="margin-bottom:16px;border-left:3px solid var(--l6)">
+      <div class="sub-title" style="color:var(--l6)">// L610 AT指令驱动层设计</div>
+      <div class="sub-grid">
+        <div class="sub-card">
+          <div class="sub-card-title" style="color:var(--l6)">模块初始化序列</div>
+          <ul>
+            <li>AT → 验证通信</li>
+            <li>AT+CPIN? → SIM卡检测</li>
+            <li>AT+CREG? → 网络注册</li>
+            <li>AT+CGATT=1 → 附着GPRS</li>
+            <li>AT+QMTOPEN → 打开MQTT连接</li>
+          </ul>
+        </div>
+        <div class="sub-card">
+          <div class="sub-card-title" style="color:var(--l6)">MQTT发布流程</div>
+          <ul>
+            <li>AT+QMTCONN → 连接Broker</li>
+            <li>AT+QMTSUB → 订阅下行Topic</li>
+            <li>AT+QMTPUB → 发布BMS JSON</li>
+            <li>异步回调处理+OK/ERROR</li>
+            <li>断线自动重连机制</li>
+          </ul>
+        </div>
+        <div class="sub-card">
+          <div class="sub-card-title" style="color:var(--l6)">短信报警</div>
+          <ul>
+            <li>AT+CMGF=1 → 文本模式</li>
+            <li>AT+CMGS="+8613X" → 发号</li>
+            <li>写入内容 + Ctrl-Z发送</li>
+            <li>故障类型映射短信模板</li>
+            <li>防重复发送冷却机制</li>
+          </ul>
+        </div>
+        <div class="sub-card">
+          <div class="sub-card-title" style="color:var(--l6)">AT指令驱动架构</div>
+          <ul>
+            <li>USART2 DMA接收环形缓冲</li>
+            <li>AT命令队列顺序执行</li>
+            <li>超时重试机制</li>
+            <li>URC主动上报解析</li>
+            <li>T6任务统一管理</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="tasks">
+      <div class="task">
+        <span class="task-key">阿里云IoT配置</span>
+        <span class="task-val">注册阿里云账号 → 物联网平台 → 创建产品"BMS48Pro" → 添加设备 → 获取ProductKey/DeviceName/DeviceSecret。Topic: <code>/${productKey}/${deviceName}/user/bms_data</code>。免费实例每月100万消息，够用。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">BMS JSON数据格式</span>
+        <span class="task-val">上报完整BMS状态：SOC、总压、电流、13节单体电压、温度、健康度、循环次数、故障码。cJSON库序列化，5秒定时上报，故障时立即上报。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">Qt订阅云端数据</span>
+        <span class="task-val">Qt使用<code>QMqttClient</code>（Qt MQTT模块）或第三方<code>QMQTT</code>库订阅同一Topic，接收云端转发的BMS数据。这样即使串口未连接，Qt也能通过4G看到实时数据——<strong style="color:var(--l6)">演示杀手锏</strong>。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">故障短信报警</span>
+        <span class="task-val">T1检测到故障 → 设置<code>FAULT_EVENT</code>标志 → T6响应，先MQTT发布故障JSON，再AT+CMGS发短信。短信内容示例："【BMS报警】节点1过压保护触发，最高电压4.23V，已断开充电回路"</span>
+      </div>
+    </div>
+
+    <div class="snippet" style="--pc:var(--l6)"><span class="cmt">// L610 MQTT发布BMS数据 (T6任务核心)</span>
+<span class="kw">void</span> <span class="cls">Task_L610_MQTT</span>(<span class="kw">void</span> *arg) {
+    L610_Init();         <span class="cmt">// AT握手 + 注册网络</span>
+    L610_MQTT_Connect(); <span class="cmt">// 连接阿里云Broker</span>
+    <span class="kw">for</span>(;;) {
+        <span class="cmt">// 等待5s定时 或 故障事件</span>
+        uint32_t flags = osEventFlagsWait(faultFlags,
+                         0xFF, osFlagsWaitAny, <span class="num">5000</span>);
+
+        <span class="cmt">// 构造JSON并发布</span>
+        osMutexAcquire(bmsMutex, osWaitForever);
+        <span class="cls">cJSON</span> *root = cJSON_CreateObject();
+        cJSON_AddNumberToObject(root, <span class="str">"soc"</span>,  g_bms.soc);
+        cJSON_AddNumberToObject(root, <span class="str">"curr"</span>, g_bms.current_ma);
+        cJSON_AddNumberToObject(root, <span class="str">"temp"</span>, g_bms.temp_c);
+        cJSON_AddNumberToObject(root, <span class="str">"fault"</span>,g_bms.fault_code);
+        <span class="cmt">// ... 添加13节电压数组 ...</span>
+        osMutexRelease(bmsMutex);
+
+        <span class="kw">char</span> *json_str = cJSON_PrintUnformatted(root);
+        L610_MQTT_Publish(TOPIC_BMS, json_str);
+        cJSON_free(json_str); cJSON_Delete(root);
+
+        <span class="cmt">// 有故障则额外发短信</span>
+        <span class="kw">if</span>(flags != osFlagsErrorTimeout && g_bms.fault_code) {
+            L610_SendSMS(ALARM_PHONE, BuildAlarmMsg(g_bms.fault_code));
+        }
+        g_bms.heartbeat[5]++;
+    }
+}</div>
+    <div class="delivs">
+      <span class="deliv">★ MQTT云端实时上报</span>
+      <span class="deliv">★ 手机端实时查看</span>
+      <span class="deliv">★ 故障短信报警</span>
+      <span class="deliv">✓ 断线自动重连</span>
+      <span class="deliv">✓ Qt订阅云端数据</span>
+    </div>
+  </div>
+</div>
+
+<!-- ────── PHASE 6 ────── -->
+<div class="phase c7">
+  <div class="phase-spine">
+    <div class="phase-dot">06</div>
+    <div class="phase-vline"></div>
+  </div>
+  <div class="phase-content">
+    <div class="phase-head">
+      <span class="phase-name">Qt 上位机全功能开发</span>
+      <span class="phase-time">W7 ~ W9 &nbsp;|&nbsp; 约21天</span>
+    </div>
+    <p class="phase-desc">Qt 5.15 Windows应用。三路数据源：串口UART / 4G MQTT云端 / 本地历史数据库。主界面包含实时Dashboard、波形图、故障面板、IAP升级、云端监控五大模块。</p>
+    <div class="tasks">
+      <div class="task">
+        <span class="task-key">工程配置</span>
+        <span class="task-val"><code>QT += serialport serialbus network charts sql mqtt</code>（mqtt需安装Qt MQTT模块或用第三方QMQTT库）。Windows下QSerialPort直接用COM口，无需额外驱动。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">串口通信模块</span>
+        <span class="task-val">QSerialPort枚举COM口，115200/8N1。自定义帧解析状态机（AA55帧头 + CRC16校验）。readyRead信号 → 数据拼包 → 解析 → 更新UI。线程安全的数据队列。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">MQTT云端订阅</span>
+        <span class="task-val">QMqttClient连接阿里云Broker，订阅BMS数据Topic。与串口数据来源互斥切换，右上角显示"数据来源：串口/4G云端"。演示时拔掉串口，Qt仍能实时显示——<strong style="color:var(--p7)">核心演示场景</strong>。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">实时Dashboard</span>
+        <span class="task-val">SOC圆弧仪表盘（QPainter自绘，颜色动态变化），13节电压柱状图（QChartView），总压/电流/温度数字仪表，健康度/循环次数显示。刷新率200ms。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">历史波形图</span>
+        <span class="task-val">Qt Charts折线图，滑动时间窗口显示最近5分钟数据。支持电压/电流/SOC/温度多曲线叠加显示。QSqlite本地存储，支持历史回放查询。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">故障面板</span>
+        <span class="task-val">实时解析故障字节，OV/UV/OT/OCD/SCD五个指示灯（正常绿→故障红闪烁）。故障日志时间戳记录。QSystemTrayIcon桌面弹窗提醒。故障发生时自动截图保存。</span>
+      </div>
+    </div>
+    <div class="snippet" style="--pc:var(--p7)"><span class="cmt">// Qt工程结构</span>
+BMS48Pro_Qt/
+├── BMS48Pro.pro
+├── core/
+│   ├── BmsData.h            <span class="cmt">// 数据结构</span>
+│   └── FrameParser.cpp      <span class="cmt">// 帧解析状态机</span>
+├── comm/
+│   ├── SerialManager.cpp    <span class="cmt">// QSerialPort封装</span>
+│   └── MqttManager.cpp      <span class="cmt">// QMqttClient封装</span>
+├── ui/
+│   ├── MainWindow.cpp       <span class="cmt">// 主窗口</span>
+│   ├── DashboardWidget.cpp  <span class="cmt">// SOC仪表+数值</span>
+│   ├── ChartWidget.cpp      <span class="cmt">// Qt Charts波形</span>
+│   ├── FaultPanel.cpp       <span class="cmt">// 故障指示面板</span>
+│   └── OtaDialog.cpp        <span class="cmt">// IAP升级对话框</span>
+└── db/
+    └── DataLogger.cpp       <span class="cmt">// QSqlite记录</span></div>
+    <div class="delivs">
+      <span class="deliv">✓ 串口实时显示</span>
+      <span class="deliv">★ MQTT云端监控</span>
+      <span class="deliv">✓ SOC仪表盘</span>
+      <span class="deliv">✓ 历史波形</span>
+      <span class="deliv">✓ 故障报警面板</span>
+      <span class="deliv">✓ SQLite数据记录</span>
+    </div>
+  </div>
+</div>
+
+<!-- ────── PHASE 7 ────── -->
+<div class="phase c8">
+  <div class="phase-spine">
+    <div class="phase-dot">07</div>
+    <div class="phase-vline"></div>
+  </div>
+  <div class="phase-content">
+    <div class="phase-head">
+      <span class="phase-name">IAP BootLoader + OTA远程升级</span>
+      <span class="phase-time">W9 &nbsp;|&nbsp; 约7天</span>
+    </div>
+    <p class="phase-desc">G474 Flash分区：BootLoader(32KB) + APP(480KB)。串口IAP用Ymodem协议，OTA通过L610 HTTP下载固件。演示时在Qt界面一键升级固件，非常有冲击力。</p>
+    <div class="tasks">
+      <div class="task">
+        <span class="task-key">BootLoader工程</span>
+        <span class="task-val">独立CubeIDE工程，链接脚本设置起始地址<code>0x08000000</code>，大小32KB。上电后等待3秒串口升级命令，超时自动跳转<code>0x08008000</code>执行APP。设置VTOR寄存器。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">Ymodem串口IAP</span>
+        <span class="task-val">BootLoader实现Ymodem接收端：握手→接收文件名包→循环接收数据包→CRC16校验→HAL_FLASH_Program写入<code>0x08008000</code>起。Qt端实现Ymodem发送，进度条显示，完成后自动复位。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">L610 HTTP OTA</span>
+        <span class="task-val">阿里云OTA服务上传新固件.bin → 平台下发升级通知 → L610接收MQTT OTA消息 → AT+QHTTPGET下载固件到内存缓冲 → 写Flash → 复位。G474接收L610传来的固件数据流。</span>
+      </div>
+    </div>
+    <div class="delivs">
+      <span class="deliv">✓ BootLoader独立工程</span>
+      <span class="deliv">✓ Qt Ymodem一键升级</span>
+      <span class="deliv">★ L610 OTA远程升级</span>
+      <span class="deliv">✓ MD5完整性校验</span>
+    </div>
+  </div>
+</div>
+
+<!-- ────── PHASE 8 ────── -->
+<div class="phase c9">
+  <div class="phase-spine">
+    <div class="phase-dot">08</div>
+    <div class="phase-vline"></div>
+  </div>
+  <div class="phase-content">
+    <div class="phase-head">
+      <span class="phase-name">系统集成联调 + 竞赛准备</span>
+      <span class="phase-time">W10 ~ W11 &nbsp;|&nbsp; 约14天</span>
+    </div>
+    <p class="phase-desc">全链路联调，压力测试，演示脚本准备，技术文档撰写。这两周的质量直接决定竞赛成绩。</span>
+    <div class="tasks">
+      <div class="task">
+        <span class="task-key">全链路联调</span>
+        <span class="task-val">嵌入式7任务 + Qt串口 + Qt MQTT + L610云端 + IAP升级 全部同时运行。重点测试：高频故障触发时多任务响应顺序；L610断网重连不影响本地保护；Qt多数据源切换无崩溃。</span>
+      </div>
+      <div class="task">
+        <span class="task-key">演示场景设计</span>
+        <span class="task-val">
+          场景1：正常运行，Qt实时显示13节电压+SOC曲线<br>
+          场景2：模拟过压，BQ76940硬件触发保护，Qt报警，手机收短信<br>
+          场景3：拔掉串口，Qt切换为4G云端数据源继续显示<br>
+          场景4：Qt界面一键IAP升级，进度条走完，版本号更新
+        </span>
+      </div>
+      <div class="task">
+        <span class="task-key">技术文档</span>
+        <span class="task-val">系统框图、接口分配表、FreeRTOS任务说明、通信协议文档、测试数据曲线截图。评委看文档时间比看代码多，文档质量决定印象分。</span>
+      </div>
+    </div>
+    <div class="delivs">
+      <span class="deliv">✓ 全链路稳定运行</span>
+      <span class="deliv">✓ 4个演示场景准备</span>
+      <span class="deliv">✓ 技术文档完整</span>
+      <span class="deliv">✓ 代码注释规范</span>
+    </div>
+  </div>
+</div>
+
+</div><!-- end timeline -->
+
+<!-- ══════════════════════════════════ RISK TABLE ══════════════════════════════════ -->
+<div class="sec-title" style="color:var(--p6);margin-top:16px">// 05 · 风险识别与规避</div>
+<div class="risk-wrap" style="background:var(--card);border:1px solid var(--border);margin-bottom:48px">
+  <div style="display:grid;grid-template-columns:180px 60px 1fr;border-bottom:1px solid var(--border2)">
+    <div style="padding:10px 16px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">风险项</div>
+    <div style="padding:10px 16px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">等级</div>
+    <div style="padding:10px 16px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted)">规避方案</div>
+  </div>
+  <div class="risk-row">
+    <div class="risk-item">L610 SIM卡网络问题</div>
+    <div class="risk-item"><span class="level level-hi">高</span></div>
+    <div class="risk-item" style="font-size:12.5px;color:#8fafc8">提前测试SIM卡信号；准备移动/联通双卡备选；演示场景准备离线模式（串口数据源）兜底</div>
+  </div>
+  <div class="risk-row">
+    <div class="risk-item">BQ76940 I2C通信不稳定</div>
+    <div class="risk-item"><span class="level level-hi">高</span></div>
+    <div class="risk-item" style="font-size:12.5px;color:#8fafc8">I2C加4.7kΩ上拉电阻；PCB走线远离FDCAN；驱动层加重试机制(3次)；异常时打印寄存器值定位</div>
+  </div>
+  <div class="risk-row">
+    <div class="risk-item">FreeRTOS堆栈溢出</div>
+    <div class="risk-item"><span class="level level-md">中</span></div>
+    <div class="risk-item" style="font-size:12.5px;color:#8fafc8">开启<code>configCHECK_FOR_STACK_OVERFLOW=2</code>；每个任务栈至少512字节；L610任务因AT字符串处理需1024字节</div>
+  </div>
+  <div class="risk-row">
+    <div class="risk-item">Qt MQTT模块不可用</div>
+    <div class="risk-item"><span class="level level-md">中</span></div>
+    <div class="risk-item" style="font-size:12.5px;color:#8fafc8">Qt 5.15 MQTT需单独安装；备选方案用QMQTT开源库（GitHub直接加入工程），或用Eclipse Paho C++库</div>
+  </div>
+  <div class="risk-row">
+    <div class="risk-item">BQ34Z100 学习周期未完成</div>
+    <div class="risk-item"><span class="level level-md">中</span></div>
+    <div class="risk-item" style="font-size:12.5px;color:#8fafc8">提前2周开始学习周期；竞赛前至少完成2次完整充放电；未学习完成时SOC显示电压估算值并标注"估算"</div>
+  </div>
+  <div class="risk-row">
+    <div class="risk-item">IAP升级写Flash失败</div>
+    <div class="risk-item"><span class="level level-lo">低</span></div>
+    <div class="risk-item" style="font-size:12.5px;color:#8fafc8">写Flash前先擦除对应页(HAL_FLASHEx_Erase)；写入后读回校验；BootLoader保留原固件备份区</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════ FINAL SUMMARY ══════════════════════════════════ -->
+<div style="background:linear-gradient(135deg,rgba(0,212,255,.05),rgba(232,121,249,.05));border:1px solid var(--border2);padding:28px 32px;margin-bottom:0">
+  <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--l6);margin-bottom:16px">// 竞赛亮点总结 — 你的项目与众不同在哪</div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px">
+    <div style="border-left:3px solid var(--p1);padding-left:14px">
+      <div style="font-size:13px;font-weight:700;color:var(--p1);margin-bottom:4px">硬件级保护</div>
+      <div style="font-size:12px;color:#7090b0">BQ76940硬件短路响应70μs，不依赖软件，这是工业级BMS的标准做法，普通同学用单片机GPIO保护的根本比不了</div>
+    </div>
+    <div style="border-left:3px solid var(--l6);padding-left:14px">
+      <div style="font-size:13px;font-weight:700;color:var(--l6);margin-bottom:4px">4G云端 + 手机实时查看</div>
+      <div style="font-size:12px;color:#7090b0">L610 MQTT接入阿里云，手机打开MQTT Dashboard即可查看实时BMS数据，演示无需PC在旁，评委手机就能看到</div>
+    </div>
+    <div style="border-left:3px solid var(--p4);padding-left:14px">
+      <div style="font-size:13px;font-weight:700;color:var(--p4);margin-bottom:4px">精确SOC算法</div>
+      <div style="font-size:12px;color:#7090b0">BQ34Z100库仑积分+容量学习，SOC精度±1%，而非简单电压查表，体现对电池管理系统的深度理解</div>
+    </div>
+    <div style="border-left:3px solid var(--p8);padding-left:14px">
+      <div style="font-size:13px;font-weight:700;color:var(--p8);margin-bottom:4px">OTA远程升级</div>
+      <div style="font-size:12px;color:#7090b0">L610 HTTP下载固件，无需物理接触即可升级嵌入式固件，这是现代IoT产品的必备能力，竞赛中极少有同学实现</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- end wrap -->
+</body>
+</html>
