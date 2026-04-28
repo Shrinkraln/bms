@@ -1,2 +1,0 @@
-D:/coding_codes/bms/g431test_cmake/Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ramfunc.c:92:30:HAL_FLASHEx_EnableRunPowerDown	4	static
-D:/coding_codes/bms/g431test_cmake/Drivers/STM32G4xx_HAL_Driver/Src/stm32g4xx_hal_flash_ramfunc.c:106:30:HAL_FLASHEx_DisableRunPowerDown	4	static
