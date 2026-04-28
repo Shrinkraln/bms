@@ -1,2 +1,3 @@
-./Datasheet/STM32G474RET6/
-./bms_proj/build/
+DataSheet/STM32G474RET6/
+bms_proj/build/
+g431test_cmake/
