@@ -1,0 +1,27 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "CMake Configure",
+            "type": "shell",
+            "command": "cmake --preset Debug",
+            "group": "build"
+        },
+        {
+            "label": "CMake Build",
+            "type": "shell",
+            "command": "cmake --build build/Debug -- -j8",
+            "group": {
+                "kind": "build",
+                "isDefault": true   // Ctrl+Shift+B 直接触发
+            },
+            "problemMatcher": "$gcc"
+        },
+        {
+            "label": "Flash",
+            "type": "shell",
+            "command": "openocd -f interface/stlink.cfg -f target/stm32g4x.cfg -c \"program build/Debug/your_name.elf verify reset exit\"",
+            "group": "test"
+        }
+    ]
+}
