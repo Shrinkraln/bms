@@ -40,16 +40,27 @@ add_subdirectory(cmake/stm32cubemx)
 # Link directories setup
 target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined library search paths
+    
 )
+
 
 # Add sources to executable
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user sources here
+    BSP/Src/bsp.c
+    BSP/Src/i2c_bus.c
+    BSP/Src/bq76920.c
+    BSP/Src/periph_tests.c
+    BSP/Src/dac8552.c
+    BSP/Src/lcd_st7789.c
+    BSP/Src/can_test.c
+    BSP/Src/my_main.c
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     # Add user defined include paths
+    BSP/Inc
 )
 
 # Add project symbols (macros)
