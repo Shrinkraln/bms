@@ -27,6 +27,8 @@
 #include "dac8552.h"
 #include "lcd_st7789.h"
 #include "can_test.h"
+#include "formation.h"
+#include "can_report.h"
 #include "my_main.h"
 
 
@@ -237,33 +239,39 @@ void set_up(void)
         for (int i = 0; i < 3; ++i) { buzzer_beep(80); HAL_Delay(80); }
     }
 
-    /* 主循环：心跳，方便后续再测温度/电压等 */
+    /* === 化成测试主循环 === */
+    fm_ctx_t fm;
+    fm_init(&fm, NULL);     /* 默认 5S/2.5Ah/0.5C；参数见 fm_default_config() */
+    ina226_init();          /* INA226 配置一次，供连续电流读取 */
+    if (can_report_init())  printf("[CAN] reporting @1Hz on 0x100/0x101/0x102\r\n");
+    else                    printf("[CAN] init failed\r\n");
+    printf("\r\n[Formation] ready. Press KEY1 to start a charge/discharge cycle.\r\n");
+
     uint32_t tick = HAL_GetTick();
     while (1) {
+        /* KEY1：从空闲启动一轮化成 */
+        if (key1_pressed() && fm.state == FM_IDLE) {
+            printf("[Formation] START\r\n");
+            fm_start(&fm);
+        }
+
+        /* 推进状态机：刷新电压/电流/温度，积分容量，活动态驱动 DAC 恒流 */
+        fm_tick(&fm);
+
+        /* 每秒：心跳灯 + 串口状态 + CAN 上报 (用 fm 缓存值，不重复读 I2C) */
         if (HAL_GetTick() - tick > 1000) {
             tick = HAL_GetTick();
-            if (fail_n) led_r_toggle();
-            else        led_g_toggle();
+            if (fail_n || fm.state == FM_ERROR) led_r_toggle();
+            else                                led_g_toggle();
 
-            /* 每秒打印一次实时电压 + 温度 + 电流，方便监控 */
-            bq76_info_t info;
-            if (bq76_read_info(&info)) {
-                printf("[live] VC: %u %u %u %u %u mV  STAT=0x%02X\r\n",
-                       info.vc_mV[0], info.vc_mV[1], info.vc_mV[2],
-                       info.vc_mV[3], info.vc_mV[4], info.sys_stat);
-            }
-            int16_t sh; uint16_t bv;
-            if (ina226_test(NULL, NULL, &sh, &bv)) {
-                /* I = shunt_uV / Rsns(10mΩ) ; uV / 10000 → 10mA 单位 */
-                int32_t mA = (int32_t)sh * 100 / 1000;  // sh in 1uV; /10m = uV/10mΩ = nA; 简化
-                /* 上面的换算精确写：I_uA = shunt_uV / 0.01 = shunt_uV * 100;
-                   I_mA = shunt_uV * 100 / 1000 = shunt_uV / 10 */
-                mA = sh / 10;
-                printf("[live] Vbus=%umV  Ishunt=%dmA  (Rsns=10mOhm)\r\n",
-                       bv, (int)mA);
-            }
-            float tc;
-            if (tmp117_test(NULL, &tc)) { /* 占位，不实时打温度避免刷屏 */ }
+            printf("[%s] pack=%lumV I=%ldmA T=%dC chg=%d dsg=%d mAh | C:%u %u %u %u %u\r\n",
+                   fm_state_name(fm.state), (unsigned long)fm.pack_mV,
+                   (long)fm.current_mA, fm.temp_C,
+                   (int)fm.charged_mAh, (int)fm.discharged_mAh,
+                   fm.cell_mV[0], fm.cell_mV[1], fm.cell_mV[2],
+                   fm.cell_mV[3], fm.cell_mV[4]);
+
+            can_report_send_status(&fm);
         }
         HAL_Delay(10);
     }

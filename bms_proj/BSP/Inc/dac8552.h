@@ -19,4 +19,22 @@ bool dac8552_set_a(uint16_t code);    // 写 A，A 立即更新
 bool dac8552_set_b(uint16_t code);    // 写 B，B 立即更新
 bool dac8552_set_both(uint16_t a, uint16_t b);
 
+/* ===== 高层封装：电压 / 恒流设定 ===== */
+#define DAC_CH_A            0
+#define DAC_CH_B            1
+#define DAC_VREF_V          3.3f       // REF3033 基准
+#define DAC_FULL_SCALE      65535U
+
+/* 恒流环增益: V_dac = I[A] × Rsns × 增益。Rsns=10mΩ。
+ * 增益由 OPA2188 反馈电阻决定，初值为占位，必须上板用
+ * “设定电流 vs INA226 实测”标定后修正。 */
+#define DAC_RSNS_OHM        0.010f
+#define DAC_CC_LOOP_GAIN    50.0f
+
+/* 设定通道输出电压 (0 ~ DAC_VREF_V)。 */
+bool dac8552_set_voltage(uint8_t ch, float volts);
+
+/* 设定通道恒流目标 (mA)，依赖 DAC_CC_LOOP_GAIN（需标定）。 */
+bool dac8552_set_current(uint8_t ch, float current_mA);
+
 #endif

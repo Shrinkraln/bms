@@ -57,6 +57,37 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define TOUCH_CS_Pin GPIO_PIN_0
+#define TOUCH_CS_GPIO_Port GPIOA
+#define DAC_DIN_Pin GPIO_PIN_1
+#define DAC_DIN_GPIO_Port GPIOA
+#define DAC_SCLK_Pin GPIO_PIN_4
+#define DAC_SCLK_GPIO_Port GPIOA
+#define LCD_DC_Pin GPIO_PIN_0
+#define LCD_DC_GPIO_Port GPIOB
+#define LCD_CS_Pin GPIO_PIN_1
+#define LCD_CS_GPIO_Port GPIOB
+#define LCD_RST_Pin GPIO_PIN_2
+#define LCD_RST_GPIO_Port GPIOB
+#define DAC_CS_Pin GPIO_PIN_10
+#define DAC_CS_GPIO_Port GPIOB
+#define KEY_Pin GPIO_PIN_12
+#define KEY_GPIO_Port GPIOB
+#define KEY_EXTI_IRQn EXTI15_10_IRQn
+#define TOUCH_INT_Pin GPIO_PIN_8
+#define TOUCH_INT_GPIO_Port GPIOA
+#define TOUCH_INT_EXTI_IRQn EXTI9_5_IRQn
+#define BQ76_ALTER_IN_Pin GPIO_PIN_3
+#define BQ76_ALTER_IN_GPIO_Port GPIOB
+#define BQ76_ALTER_IN_EXTI_IRQn EXTI3_IRQn
+#define LED_GREEN_Pin GPIO_PIN_4
+#define LED_GREEN_GPIO_Port GPIOB
+#define LED_RED_Pin GPIO_PIN_5
+#define LED_RED_GPIO_Port GPIOB
+#define BEE_Pin GPIO_PIN_8
+#define BEE_GPIO_Port GPIOB
+#define BQ43_VEN_Pin GPIO_PIN_9
+#define BQ43_VEN_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 

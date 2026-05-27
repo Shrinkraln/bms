@@ -57,6 +57,36 @@ bool ina226_test(uint16_t *mfg_id, uint16_t *die_id, int16_t *shunt_uV, uint16_t
     return true;
 }
 
+/* ===== INA226 连续测量 ===== */
+bool ina226_init(void)
+{
+    if (!i2c_probe(INA226_ADDR7)) return false;
+    /* avg=16, VBUS=1.1ms, VSH=1.1ms, 连续 shunt+bus = 0x4527 */
+    uint8_t cfg[3] = { INA226_REG_CFG, 0x45, 0x27 };
+    if (HAL_I2C_Master_Transmit(&hi2c1, INA226_ADDR7 << 1, cfg, 3, 20) != HAL_OK)
+        return false;
+    HAL_Delay(5);
+    return true;
+}
+
+bool ina226_read(int16_t *shunt_uV, uint16_t *bus_mV)
+{
+    uint16_t s_raw = 0, v_raw = 0;
+    if (!i2c_read_reg16_be(INA226_ADDR7, INA226_REG_SHUNT_V, &s_raw)) return false;
+    if (!i2c_read_reg16_be(INA226_ADDR7, INA226_REG_BUS_V,   &v_raw)) return false;
+    if (shunt_uV) *shunt_uV = (int16_t)((int32_t)(int16_t)s_raw * 25 / 10); /* 2.5µV/LSB */
+    if (bus_mV)   *bus_mV   = (uint16_t)((uint32_t)v_raw * 125 / 100);      /* 1.25mV/LSB */
+    return true;
+}
+
+int32_t ina226_current_mA(void)
+{
+    int16_t sh = 0;
+    if (!ina226_read(&sh, NULL)) return 0;
+    /* I = shunt_uV / Rsns(10mΩ) → I_mA = shunt_uV / 10 */
+    return (int32_t)sh / 10;
+}
+
 /* ===== TMP117 ===== */
 bool tmp117_test(uint16_t *dev_id_out, float *temp_C)
 {

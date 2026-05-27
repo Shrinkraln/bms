@@ -54,6 +54,8 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     BSP/Src/dac8552.c
     BSP/Src/lcd_st7789.c
     BSP/Src/can_test.c
+    BSP/Src/can_report.c
+    BSP/Src/formation.c
     BSP/Src/my_main.c
 )
 
