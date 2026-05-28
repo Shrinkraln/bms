@@ -8,9 +8,20 @@ bool can_report_init(void)
     HAL_FDCAN_Stop(&hfdcan1);                 /* 自检的回环模式可能还在，先停 */
     hfdcan1.Init.Mode = FDCAN_MODE_NORMAL;
     if (HAL_FDCAN_Init(&hfdcan1) != HAL_OK) return false;
-    /* 只发不收：拒收所有 */
+
+    /* 默认拒收, 然后单独放行 0x200 (上位机命令帧) → FIFO0 */
     HAL_FDCAN_ConfigGlobalFilter(&hfdcan1, FDCAN_REJECT, FDCAN_REJECT,
                                  FDCAN_FILTER_REMOTE, FDCAN_FILTER_REMOTE);
+
+    FDCAN_FilterTypeDef f = {0};
+    f.IdType       = FDCAN_STANDARD_ID;
+    f.FilterIndex  = 0;
+    f.FilterType   = FDCAN_FILTER_MASK;
+    f.FilterConfig = FDCAN_FILTER_TO_RXFIFO0;
+    f.FilterID1    = 0x200;                   /* 命令 ID */
+    f.FilterID2    = 0x7FF;                   /* 全 1 = 精确匹配 */
+    if (HAL_FDCAN_ConfigFilter(&hfdcan1, &f) != HAL_OK) return false;
+
     return HAL_FDCAN_Start(&hfdcan1) == HAL_OK;
 }
 

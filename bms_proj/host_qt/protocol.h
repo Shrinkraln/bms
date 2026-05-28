@@ -25,6 +25,14 @@ constexpr uint32_t ID_STATUS  = 0x100;  // pack/current/state/temp/charged
 constexpr uint32_t ID_CELLS_A = 0x101;  // cell1..4
 constexpr uint32_t ID_CELLS_B = 0x102;  // cell5/discharged/error
 
+/* 上位机 → 板子 命令帧 (8 字节 LE, [0]=opcode, [1..]=参数) */
+constexpr uint32_t ID_CMD     = 0x200;
+constexpr uint8_t  CMD_START      = 0x01;  // 无参
+constexpr uint8_t  CMD_STOP       = 0x02;  // 无参
+constexpr uint8_t  CMD_SET_CHG_I  = 0x03;  // [1:2] u16 mA
+constexpr uint8_t  CMD_SET_DSG_I  = 0x04;  // [1:2] u16 mA
+constexpr uint8_t  CMD_CLEAR_ERR  = 0x05;  // 无参
+
 struct BmsData {
     uint16_t pack_mV       = 0;
     int16_t  current_mA    = 0;

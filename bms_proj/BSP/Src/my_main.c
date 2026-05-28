@@ -29,6 +29,7 @@
 #include "can_test.h"
 #include "formation.h"
 #include "can_report.h"
+#include "can_cmd.h"
 #include "lvgl_port.h"
 #include "bms_ui.h"
 #include "my_main.h"
@@ -245,8 +246,9 @@ void set_up(void)
     fm_ctx_t fm;
     fm_init(&fm, NULL);     /* 默认 5S/2.5Ah/0.5C；参数见 fm_default_config() */
     ina226_init();          /* INA226 配置一次，供连续电流读取 */
-    if (can_report_init())  printf("[CAN] reporting @1Hz on 0x100/0x101/0x102\r\n");
+    if (can_report_init())  printf("[CAN] TX 0x100/0x101/0x102 @1Hz, RX cmd 0x200 enabled\r\n");
     else                    printf("[CAN] init failed\r\n");
+    can_cmd_init(&fm);
 
     /* LVGL + BMS 仪表盘 (依赖 lcd_init 已在自检中跑过) */
     lvgl_port_init();
@@ -264,6 +266,9 @@ void set_up(void)
             uint32_t t0 = HAL_GetTick();
             while (key1_pressed() && (HAL_GetTick() - t0) < 1000U) HAL_Delay(10);
         }
+
+        /* 上位机命令 (0x200): drain RxFIFO0 并执行 */
+        can_cmd_poll();
 
         /* 推进状态机：刷新电压/电流/温度，积分容量，活动态驱动 DAC 恒流 */
         fm_tick(&fm);

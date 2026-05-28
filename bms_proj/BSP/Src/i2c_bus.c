@@ -33,7 +33,8 @@ bool i2c_read_buf(uint8_t addr7, uint8_t reg, uint8_t *buf, uint16_t n)
 
 bool i2c_write_buf(uint8_t addr7, uint8_t reg, const uint8_t *buf, uint16_t n)
 {
-    uint8_t tmp[32];
+    /* 64 字节给 BQ34Z100 SBS Data Flash 写入留余量 (常用 32 字节块) */
+    uint8_t tmp[64];
     if ((size_t)(n + 1) > sizeof(tmp)) return false;
     tmp[0] = reg;
     for (uint16_t i = 0; i < n; ++i) tmp[1+i] = buf[i];

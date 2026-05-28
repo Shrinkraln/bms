@@ -11,6 +11,7 @@
 #include <QGroupBox>
 #include <QComboBox>
 #include <QPushButton>
+#include <QSpinBox>
 #include <QLabel>
 #include <QFont>
 #include <QFileDialog>
@@ -83,6 +84,41 @@ void MainWindow::buildUi()
         m_lCell[i] = addField(g, 2, i, QString("Cell%1").arg(i + 1));
     root->addWidget(gb);
 
+    // —— 控制 (反向 CAN 命令 → 板子) ——
+    auto *ctrl = new QGroupBox("控制");
+    auto *ch = new QHBoxLayout(ctrl);
+    m_startBtn = new QPushButton("START");
+    m_startBtn->setStyleSheet("background:#388E3C; color:white; font-weight:bold; padding:6px 14px;");
+    m_stopBtn  = new QPushButton("STOP");
+    m_stopBtn ->setStyleSheet("background:#D32F2F; color:white; font-weight:bold; padding:6px 14px;");
+    m_clearBtn = new QPushButton("Clear ALM");
+    m_clearBtn->setStyleSheet("background:#F57C00; color:white; font-weight:bold; padding:6px 14px;");
+    ch->addWidget(m_startBtn);
+    ch->addWidget(m_stopBtn);
+    ch->addWidget(m_clearBtn);
+    ch->addSpacing(20);
+
+    ch->addWidget(new QLabel("充电 mA:"));
+    m_chgISpin = new QSpinBox(); m_chgISpin->setRange(0, 5000); m_chgISpin->setSingleStep(50); m_chgISpin->setValue(1250);
+    ch->addWidget(m_chgISpin);
+    m_setChgBtn = new QPushButton("Set");
+    ch->addWidget(m_setChgBtn);
+
+    ch->addWidget(new QLabel("放电 mA:"));
+    m_dsgISpin = new QSpinBox(); m_dsgISpin->setRange(0, 5000); m_dsgISpin->setSingleStep(50); m_dsgISpin->setValue(1250);
+    ch->addWidget(m_dsgISpin);
+    m_setDsgBtn = new QPushButton("Set");
+    ch->addWidget(m_setDsgBtn);
+
+    ch->addStretch(1);
+    root->addWidget(ctrl);
+
+    connect(m_startBtn,  &QPushButton::clicked, this, &MainWindow::onStartClicked);
+    connect(m_stopBtn,   &QPushButton::clicked, this, &MainWindow::onStopClicked);
+    connect(m_clearBtn,  &QPushButton::clicked, this, &MainWindow::onClearErrClicked);
+    connect(m_setChgBtn, &QPushButton::clicked, this, &MainWindow::onSetChgIClicked);
+    connect(m_setDsgBtn, &QPushButton::clicked, this, &MainWindow::onSetDsgIClicked);
+
     // —— 曲线 ——
     m_plot = new PlotWidget();
     root->addWidget(m_plot, 1);
@@ -105,9 +141,34 @@ void MainWindow::setConnected(bool connected)
     m_iface->setEnabled(!connected);
     m_connectBtn->setText(connected ? "断开" : "连接");
     m_logBtn->setEnabled(connected);
+    m_startBtn ->setEnabled(connected);
+    m_stopBtn  ->setEnabled(connected);
+    m_clearBtn ->setEnabled(connected);
+    m_setChgBtn->setEnabled(connected);
+    m_setDsgBtn->setEnabled(connected);
     m_status->setText(connected ? QString("已连接 %1 @500k").arg(m_iface->currentText())
                                 : "未连接");
 }
+
+/* ===== 反向命令: 上位机 → 板子 (ID 0x200, 8 字节 LE) ===== */
+void MainWindow::sendCmd(uint8_t opcode, uint16_t param)
+{
+    if (!m_dev) return;
+    QByteArray d(8, '\0');
+    d[0] = static_cast<char>(opcode);
+    d[1] = static_cast<char>(param & 0xFF);
+    d[2] = static_cast<char>((param >> 8) & 0xFF);
+    QCanBusFrame f(bms::ID_CMD, d);
+    f.setFrameType(QCanBusFrame::DataFrame);
+    if (!m_dev->writeFrame(f))
+        m_status->setText("命令发送失败: " + m_dev->errorString());
+}
+
+void MainWindow::onStartClicked()    { sendCmd(bms::CMD_START,     0); }
+void MainWindow::onStopClicked()     { sendCmd(bms::CMD_STOP,      0); }
+void MainWindow::onClearErrClicked() { sendCmd(bms::CMD_CLEAR_ERR, 0); }
+void MainWindow::onSetChgIClicked()  { sendCmd(bms::CMD_SET_CHG_I, static_cast<uint16_t>(m_chgISpin->value())); }
+void MainWindow::onSetDsgIClicked()  { sendCmd(bms::CMD_SET_DSG_I, static_cast<uint16_t>(m_dsgISpin->value())); }
 
 void MainWindow::onConnectClicked()
 {

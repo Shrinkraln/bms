@@ -81,8 +81,11 @@ bool key1_wait(uint32_t timeout_ms)
         if (key1_pressed()) {
             HAL_Delay(20);  // 消抖
             if (key1_pressed()) {
-                /* 等待松手再返回，避免重入 */
-                while (key1_pressed()) { HAL_Delay(10); }
+                /* 等待松手再返回, 避免重入; 最多 5s 防卡住 (按键卡死/长按) */
+                uint32_t t_rel = HAL_GetTick();
+                while (key1_pressed() && (HAL_GetTick() - t_rel) < 5000U) {
+                    HAL_Delay(10);
+                }
                 return true;
             }
         }

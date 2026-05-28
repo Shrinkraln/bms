@@ -9,6 +9,7 @@ class QCanBusDevice;
 class QComboBox;
 class QPushButton;
 class QLabel;
+class QSpinBox;
 class PlotWidget;
 
 class MainWindow : public QMainWindow
@@ -23,16 +24,29 @@ private slots:
     void onLogClicked();
     void onFramesReceived();
     void onCanError();
+    void onStartClicked();
+    void onStopClicked();
+    void onClearErrClicked();
+    void onSetChgIClicked();
+    void onSetDsgIClicked();
 
 private:
     void buildUi();
     void updateLabels();
     void setConnected(bool connected);
     void writeCsvRow(double t_sec);
+    void sendCmd(uint8_t opcode, uint16_t param);
 
     QComboBox   *m_iface = nullptr;
     QPushButton *m_connectBtn = nullptr;
     QPushButton *m_logBtn = nullptr;
+    QPushButton *m_startBtn = nullptr;
+    QPushButton *m_stopBtn = nullptr;
+    QPushButton *m_clearBtn = nullptr;
+    QPushButton *m_setChgBtn = nullptr;
+    QPushButton *m_setDsgBtn = nullptr;
+    QSpinBox    *m_chgISpin = nullptr;
+    QSpinBox    *m_dsgISpin = nullptr;
     QLabel      *m_status = nullptr;
     QLabel      *m_logLbl = nullptr;
 

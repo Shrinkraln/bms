@@ -71,7 +71,8 @@ static void fm_fail(fm_ctx_t *ctx, fm_error_t e)
            ctx->cell_mV[3], ctx->cell_mV[4], ctx->temp_C);
 }
 
-/* 读取一轮测量，写入 ctx。电压读失败视为致命，返回 false。 */
+/* 读取一轮测量，写入 ctx。电压读失败视为致命，返回 false。
+ * 温度变化慢, 节流到 1Hz 读 (tmp117_test 内有 20ms HAL_Delay, 每 tick 读太亏)。 */
 static bool fm_read_sensors(fm_ctx_t *ctx)
 {
     bq76_info_t info;
@@ -86,8 +87,14 @@ static bool fm_read_sensors(fm_ctx_t *ctx)
 
     ctx->current_mA = ina226_current_mA();   /* 失败返回 0，非致命 */
 
-    float t;
-    if (tmp117_test(NULL, &t)) ctx->temp_C = (int16_t)t;   /* 失败则保留旧值 */
+    /* 温度 1Hz 节流: 比电压电流慢得多, 不必每 tick 都读 */
+    static uint32_t last_temp_tick = 0;
+    uint32_t now = HAL_GetTick();
+    if ((now - last_temp_tick) >= 1000U) {
+        float t;
+        if (tmp117_test(NULL, &t)) ctx->temp_C = (int16_t)t;
+        last_temp_tick = now;
+    }
     return true;
 }
 
