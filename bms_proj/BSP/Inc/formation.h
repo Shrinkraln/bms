@@ -28,6 +28,7 @@ typedef enum {
     FM_ERR_CELL_UV,
     FM_ERR_OVER_TEMP,
     FM_ERR_SENSOR,      /* 读传感器失败 */
+    FM_ERR_TIMEOUT,     /* 某阶段超时 (未接电池/电压不动) */
 } fm_error_t;
 
 typedef struct {
@@ -43,6 +44,10 @@ typedef struct {
     uint16_t ov_cell_mV;            /* 单体过压保护 */
     uint16_t uv_cell_mV;            /* 单体欠压保护 */
     int16_t  max_temp_C;            /* 过温保护 */
+    /* 各阶段超时兜底 (未接电池/电压长时间不动时退出) */
+    uint32_t cc_charge_timeout_ms;
+    uint32_t cv_charge_timeout_ms;
+    uint32_t cc_discharge_timeout_ms;
 } fm_config_t;
 
 typedef struct {

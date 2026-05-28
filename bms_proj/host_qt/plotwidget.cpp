@@ -1,5 +1,6 @@
 #include "plotwidget.h"
 #include <QPainter>
+#include <QPainterPath>     // Qt6: <QPainter> 不再间接带入
 #include <QPaintEvent>
 
 PlotWidget::PlotWidget(QWidget *parent) : QWidget(parent)

@@ -17,8 +17,8 @@ inline QString stateName(uint8_t s)
 
 inline QString errorName(uint8_t e)
 {
-    static const char *n[] = { "NONE", "CELL_OV", "CELL_UV", "OVER_TEMP", "SENSOR" };
-    return (e < 5) ? QString::fromLatin1(n[e]) : QString("?");
+    static const char *n[] = { "NONE","CELL_OV","CELL_UV","OVER_TEMP","SENSOR","TIMEOUT" };
+    return (e < 6) ? QString::fromLatin1(n[e]) : QString("?");
 }
 
 constexpr uint32_t ID_STATUS  = 0x100;  // pack/current/state/temp/charged

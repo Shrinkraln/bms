@@ -50,7 +50,7 @@ bool lcd_init(void)
     return true;
 }
 
-static void lcd_set_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
+void lcd_set_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
 {
     lcd_cmd(0x2A);
     uint8_t b[4] = { (uint8_t)(x0>>8), (uint8_t)x0, (uint8_t)(x1>>8), (uint8_t)x1 };
@@ -59,6 +59,22 @@ static void lcd_set_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
     b[0]=(uint8_t)(y0>>8); b[1]=(uint8_t)y0; b[2]=(uint8_t)(y1>>8); b[3]=(uint8_t)y1;
     lcd_data_buf(b, 4);
     lcd_cmd(0x2C);
+}
+
+/* 大块写像素: 一次性 SPI 传 RAMWR 之后的数据 (DC=H, CS 在整段保持低) */
+void lcd_write_pixels(const uint8_t *buf, uint32_t n_bytes)
+{
+    lcd_dc_h();
+    lcd_cs_l();
+    /* HAL_SPI_Transmit Size 为 uint16_t, 大块时分段 */
+    const uint32_t CHUNK = 32768U;
+    uint32_t off = 0;
+    while (off < n_bytes) {
+        uint32_t k = (n_bytes - off) > CHUNK ? CHUNK : (n_bytes - off);
+        HAL_SPI_Transmit(&hspi1, (uint8_t *)(buf + off), (uint16_t)k, 1000);
+        off += k;
+    }
+    lcd_cs_h();
 }
 
 void lcd_fill(uint16_t color)

@@ -29,6 +29,8 @@
 #include "can_test.h"
 #include "formation.h"
 #include "can_report.h"
+#include "lvgl_port.h"
+#include "bms_ui.h"
 #include "my_main.h"
 
 
@@ -245,20 +247,31 @@ void set_up(void)
     ina226_init();          /* INA226 配置一次，供连续电流读取 */
     if (can_report_init())  printf("[CAN] reporting @1Hz on 0x100/0x101/0x102\r\n");
     else                    printf("[CAN] init failed\r\n");
-    printf("\r\n[Formation] ready. Press KEY1 to start a charge/discharge cycle.\r\n");
+
+    /* LVGL + BMS 仪表盘 (依赖 lcd_init 已在自检中跑过) */
+    lvgl_port_init();
+    bms_ui_init(&fm);
+    bms_ui_update(&fm);     /* 先把空闲态画出来 */
+
+    printf("\r\n[Formation] KEY1 = switch tab; touch Setup page START to begin.\r\n");
 
     uint32_t tick = HAL_GetTick();
     while (1) {
-        /* KEY1：从空闲启动一轮化成 */
-        if (key1_pressed() && fm.state == FM_IDLE) {
-            printf("[Formation] START\r\n");
-            fm_start(&fm);
+        /* KEY1: 切到下一个 UI 标签 (启动化成走 Setup 页的触摸 START 按钮) */
+        if (key1_pressed()) {
+            bms_ui_next_tab();
+            /* 等松手, 最多 1s 防卡死 */
+            uint32_t t0 = HAL_GetTick();
+            while (key1_pressed() && (HAL_GetTick() - t0) < 1000U) HAL_Delay(10);
         }
 
         /* 推进状态机：刷新电压/电流/温度，积分容量，活动态驱动 DAC 恒流 */
         fm_tick(&fm);
 
-        /* 每秒：心跳灯 + 串口状态 + CAN 上报 (用 fm 缓存值，不重复读 I2C) */
+        /* LVGL 渲染 (内部按需重画脏区域) */
+        lvgl_port_handler();
+
+        /* 每秒：心跳灯 + 串口状态 + CAN 上报 + LCD UI (用 fm 缓存值) */
         if (HAL_GetTick() - tick > 1000) {
             tick = HAL_GetTick();
             if (fail_n || fm.state == FM_ERROR) led_r_toggle();
@@ -272,6 +285,7 @@ void set_up(void)
                    fm.cell_mV[3], fm.cell_mV[4]);
 
             can_report_send_status(&fm);
+            bms_ui_update(&fm);
         }
         HAL_Delay(10);
     }

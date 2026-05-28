@@ -11,6 +11,10 @@
 bool lcd_init(void);
 void lcd_fill(uint16_t rgb565);
 
+/* 暴露给 LVGL flush 用: 设窗口 + 大块写像素 (RGB565, 每像素高字节先发) */
+void lcd_set_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
+void lcd_write_pixels(const uint8_t *buf, uint32_t n_bytes);
+
 #define LCD_COLOR_RED   0xF800
 #define LCD_COLOR_GREEN 0x07E0
 #define LCD_COLOR_BLUE  0x001F

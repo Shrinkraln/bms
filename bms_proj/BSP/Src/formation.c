@@ -12,8 +12,9 @@
 #define DAC_CH_CHG   DAC_CH_B
 #define DAC_CH_DSG   DAC_CH_A
 
-/* CV 阶段电压环比例增益 (mA/mV), 需上板标定 */
-#define FM_CV_KP     0.5f
+/* CV 阶段电压环积分增益 (mA/(mV·s))，与 tick 周期无关；需上板整定 */
+#define FM_CV_KI  5.0f
+
 
 /* ------------------------------------------------------------ */
 void fm_default_config(fm_config_t *cfg)
@@ -27,6 +28,9 @@ void fm_default_config(fm_config_t *cfg)
     cfg->ov_cell_mV            = 4250;
     cfg->uv_cell_mV            = 2400;
     cfg->max_temp_C            = 60;
+    cfg->cc_charge_timeout_ms    = 3u * 3600u * 1000u;  /* 3h 安全上限 */
+    cfg->cv_charge_timeout_ms    = 2u * 3600u * 1000u;
+    cfg->cc_discharge_timeout_ms = 3u * 3600u * 1000u;
 }
 
 const char *fm_state_name(fm_state_t s)
@@ -160,6 +164,7 @@ void fm_tick(fm_ctx_t *ctx)
         dac8552_set_current(DAC_CH_CHG, ctx->cfg.charge_current_mA);
         ctx->charged_mAh += dmAh;
         if (fm_any_cell_ge(ctx, ctx->cfg.ov_cell_mV)) { fm_fail(ctx, FM_ERR_CELL_OV); break; }
+        if (elapsed >= ctx->cfg.cc_charge_timeout_ms) { fm_fail(ctx, FM_ERR_TIMEOUT); break; }
         if (ctx->pack_mV >= ctx->cfg.charge_pack_max_mV) {
             ctx->cv_setpoint_mA = ctx->cfg.charge_current_mA;
             fm_goto(ctx, FM_CV_CHARGE);
@@ -167,9 +172,9 @@ void fm_tick(fm_ctx_t *ctx)
         break;
 
     case FM_CV_CHARGE: {
-        /* P 控制维持总压 = charge_pack_max_mV，电流随之收敛 */
+        /* 积分控制维持总压 = charge_pack_max_mV，电流随之收敛 (增益按 dt 缩放，与 tick 频率无关) */
         float err_mV = (float)ctx->cfg.charge_pack_max_mV - (float)ctx->pack_mV;
-        ctx->cv_setpoint_mA += err_mV * FM_CV_KP;
+        ctx->cv_setpoint_mA += err_mV * FM_CV_KI * ((float)dt_ms / 1000.0f);
         if (ctx->cv_setpoint_mA < 0.0f) ctx->cv_setpoint_mA = 0.0f;
         if (ctx->cv_setpoint_mA > ctx->cfg.charge_current_mA)
             ctx->cv_setpoint_mA = ctx->cfg.charge_current_mA;
@@ -177,6 +182,7 @@ void fm_tick(fm_ctx_t *ctx)
         dac8552_set_current(DAC_CH_CHG, ctx->cv_setpoint_mA);
         ctx->charged_mAh += dmAh;
         if (fm_any_cell_ge(ctx, ctx->cfg.ov_cell_mV)) { fm_fail(ctx, FM_ERR_CELL_OV); break; }
+        if (elapsed >= ctx->cfg.cv_charge_timeout_ms) { fm_fail(ctx, FM_ERR_TIMEOUT); break; }
         if (fabsf((float)ctx->current_mA) <= ctx->cfg.cv_cutoff_current_mA) {
             fm_output_off();
             fm_goto(ctx, FM_REST_AFTER_CHG);
@@ -194,6 +200,7 @@ void fm_tick(fm_ctx_t *ctx)
         dac8552_set_current(DAC_CH_DSG, ctx->cfg.discharge_current_mA);
         ctx->discharged_mAh += dmAh;
         if (fm_any_cell_le(ctx, ctx->cfg.uv_cell_mV)) { fm_fail(ctx, FM_ERR_CELL_UV); break; }
+        if (elapsed >= ctx->cfg.cc_discharge_timeout_ms) { fm_fail(ctx, FM_ERR_TIMEOUT); break; }
         if (ctx->pack_mV <= ctx->cfg.discharge_pack_min_mV) {
             fm_output_off();
             fm_goto(ctx, FM_REST_AFTER_DSG);
