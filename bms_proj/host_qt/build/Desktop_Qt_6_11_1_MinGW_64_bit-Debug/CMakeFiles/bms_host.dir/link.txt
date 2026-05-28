@@ -1,3 +1,0 @@
-D:\coding_tools\QT\download\Tools\CMake_64\bin\cmake.exe -E rm -f CMakeFiles\bms_host.dir/objects.a
-D:\coding_tools\QT\download\Tools\mingw1310_64\bin\ar.exe qc CMakeFiles\bms_host.dir/objects.a @CMakeFiles\bms_host.dir\objects1.rsp
-D:\coding_tools\QT\download\Tools\mingw1310_64\bin\g++.exe -g -Wl,--whole-archive CMakeFiles\bms_host.dir/objects.a -Wl,--no-whole-archive -o bms_host.exe -Wl,--out-implib,libbms_host.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\bms_host.dir\linkLibs.rsp

@@ -1,5 +1,0 @@
-D:/coding_codes/bms/bms_proj/host_qt/build/Desktop_Qt_6_11_1_MinGW_64_bit-Debug/CMakeFiles/bms_host.dir
-D:/coding_codes/bms/bms_proj/host_qt/build/Desktop_Qt_6_11_1_MinGW_64_bit-Debug/CMakeFiles/edit_cache.dir
-D:/coding_codes/bms/bms_proj/host_qt/build/Desktop_Qt_6_11_1_MinGW_64_bit-Debug/CMakeFiles/rebuild_cache.dir
-D:/coding_codes/bms/bms_proj/host_qt/build/Desktop_Qt_6_11_1_MinGW_64_bit-Debug/CMakeFiles/bms_host_autogen_timestamp_deps.dir
-D:/coding_codes/bms/bms_proj/host_qt/build/Desktop_Qt_6_11_1_MinGW_64_bit-Debug/CMakeFiles/bms_host_autogen.dir

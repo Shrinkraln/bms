@@ -1,3 +1,0 @@
-set(__QT_DEPLOY_TARGET_bms_host_FILE D:/coding_codes/bms/bms_proj/host_qt/build/Desktop_Qt_6_11_1_MinGW_64_bit-Debug/bms_host.exe)
-set(__QT_DEPLOY_TARGET_bms_host_TYPE EXECUTABLE)
-set(__QT_DEPLOY_TARGET_bms_host_RUNTIME_DLLS D:/coding_tools/QT/download/6.11.1/mingw_64/bin/Qt6Widgets.dll;D:/coding_tools/QT/download/6.11.1/mingw_64/bin/Qt6SerialBus.dll;D:/coding_tools/QT/download/6.11.1/mingw_64/bin/Qt6Gui.dll;D:/coding_tools/QT/download/6.11.1/mingw_64/bin/Qt6Network.dll;D:/coding_tools/QT/download/6.11.1/mingw_64/bin/Qt6SerialPort.dll;D:/coding_tools/QT/download/6.11.1/mingw_64/bin/Qt6Core.dll)
