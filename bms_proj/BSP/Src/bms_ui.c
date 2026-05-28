@@ -1,10 +1,13 @@
 /**
- * bms_ui.c — BMS 化成 UI (LVGL 9.x, ST7796 320×480, 3 标签页)
+ * bms_ui.c — BMS 化成 UI (LVGL 9.x, ST7796 横屏 480×320, 3 标签页)
  *
- * 布局充分利用 3.5" 屏:
- *   Dashboard: 状态行 / 大字 Pack(28) / 大字 Current(28) / 5 节竖条+电压文字 / 底部行
- *   Chart    : 60 秒 V/I 滚动曲线 (340 高)
- *   Setup    : 巨型 START / STOP 按钮 (300×100, 易触)
+ *  Dashboard (480×280 内容区):
+ *    顶: ● 状态  (左)         报警 (右)
+ *    中: Pack 大字 (左半)     Chg/Dsg/T (右半)
+ *        I    大字
+ *    底: 5 节竖条 + 每节 mV
+ *  Chart    : 顶部读数 + 480×256 大幅曲线
+ *  Setup    : START / STOP 巨型按钮 (220×120, 左右排列) + 状态
  */
 #include "bms_ui.h"
 #include "lvgl.h"
@@ -14,10 +17,10 @@ static fm_ctx_t *s_fm = NULL;
 static lv_obj_t *s_tv;
 
 /* Dashboard */
-static lv_obj_t *s_dot, *s_state_lbl;
+static lv_obj_t *s_dot, *s_state_lbl, *s_alm_lbl;
 static lv_obj_t *s_pack_lbl, *s_cur_lbl;
+static lv_obj_t *s_chg_lbl, *s_dsg_lbl, *s_temp_lbl;
 static lv_obj_t *s_cell_bar[5], *s_cell_name[5], *s_cell_mv[5];
-static lv_obj_t *s_bot_lbl;
 
 /* Chart */
 static lv_obj_t *s_chart;
@@ -61,11 +64,11 @@ static void on_stop_clicked (lv_event_t *e) { (void)e; if (s_fm) fm_stop (s_fm);
 /* ===== Dashboard ===== */
 static void build_dashboard(lv_obj_t *p)
 {
-    lv_obj_set_style_pad_all(p, 8, 0);
+    lv_obj_set_style_pad_all(p, 6, 0);
     lv_obj_set_style_bg_color(p, lv_color_hex(0x101218), 0);
     lv_obj_remove_flag(p, LV_OBJ_FLAG_SCROLLABLE);
 
-    /* 顶部: 状态指示 */
+    /* ---- 顶部状态行 (横向) ---- */
     s_dot = lv_obj_create(p);
     lv_obj_set_size(s_dot, 24, 24);
     lv_obj_set_pos(s_dot, 0, 4);
@@ -80,26 +83,50 @@ static void build_dashboard(lv_obj_t *p)
     lv_obj_set_pos(s_state_lbl, 36, 4);
     lv_label_set_text(s_state_lbl, "IDLE");
 
-    /* 大字 Pack */
+    s_alm_lbl = lv_label_create(p);
+    lv_obj_set_style_text_color(s_alm_lbl, lv_color_hex(0x9CA3AF), 0);
+    lv_obj_set_style_text_font(s_alm_lbl, &lv_font_montserrat_14, 0);
+    lv_obj_set_pos(s_alm_lbl, 350, 10);
+    lv_label_set_text(s_alm_lbl, "ALM: NONE");
+
+    /* ---- 左半 (x=0..236): 大字 Pack + Current ---- */
     s_pack_lbl = lv_label_create(p);
     lv_obj_set_style_text_color(s_pack_lbl, lv_color_white(), 0);
     lv_obj_set_style_text_font(s_pack_lbl, &lv_font_montserrat_28, 0);
-    lv_obj_set_pos(s_pack_lbl, 0, 44);
+    lv_obj_set_pos(s_pack_lbl, 4, 40);
     lv_label_set_text(s_pack_lbl, "-- V");
 
-    /* 大字 Current */
     s_cur_lbl = lv_label_create(p);
     lv_obj_set_style_text_color(s_cur_lbl, lv_color_hex(0xB3D4FC), 0);
     lv_obj_set_style_text_font(s_cur_lbl, &lv_font_montserrat_28, 0);
-    lv_obj_set_pos(s_cur_lbl, 0, 88);
+    lv_obj_set_pos(s_cur_lbl, 4, 84);
     lv_label_set_text(s_cur_lbl, "-- mA");
 
-    /* 5 节竖条 + 名字 + 电压数字 (每格 60 宽, 居中) */
+    /* ---- 右半 (x=250..468): Chg / Dsg / T ---- */
+    s_chg_lbl = lv_label_create(p);
+    lv_obj_set_style_text_color(s_chg_lbl, lv_color_hex(0x90CAF9), 0);
+    lv_obj_set_style_text_font(s_chg_lbl, &lv_font_montserrat_20, 0);
+    lv_obj_set_pos(s_chg_lbl, 250, 40);
+    lv_label_set_text(s_chg_lbl, "Chg --- mAh");
+
+    s_dsg_lbl = lv_label_create(p);
+    lv_obj_set_style_text_color(s_dsg_lbl, lv_color_hex(0xFFAB91), 0);
+    lv_obj_set_style_text_font(s_dsg_lbl, &lv_font_montserrat_20, 0);
+    lv_obj_set_pos(s_dsg_lbl, 250, 70);
+    lv_label_set_text(s_dsg_lbl, "Dsg --- mAh");
+
+    s_temp_lbl = lv_label_create(p);
+    lv_obj_set_style_text_color(s_temp_lbl, lv_color_hex(0xCCCCCC), 0);
+    lv_obj_set_style_text_font(s_temp_lbl, &lv_font_montserrat_20, 0);
+    lv_obj_set_pos(s_temp_lbl, 250, 100);
+    lv_label_set_text(s_temp_lbl, "T --- C");
+
+    /* ---- 底部 5 节竖条 + 名字 + 电压数字 (480 宽 → 每节 92px) ---- */
     for (int i = 0; i < 5; ++i) {
-        int x = i * 60;
+        int x = i * 92 + 8;
 
         s_cell_bar[i] = lv_bar_create(p);
-        lv_obj_set_size(s_cell_bar[i], 50, 120);
+        lv_obj_set_size(s_cell_bar[i], 76, 90);
         lv_obj_set_pos(s_cell_bar[i], x, 140);
         lv_bar_set_range(s_cell_bar[i], 2500, 4250);
         lv_bar_set_value(s_cell_bar[i], 3700, LV_ANIM_OFF);
@@ -109,28 +136,21 @@ static void build_dashboard(lv_obj_t *p)
         s_cell_name[i] = lv_label_create(p);
         lv_obj_set_style_text_color(s_cell_name[i], lv_color_hex(0xAAAAAA), 0);
         lv_obj_set_style_text_font(s_cell_name[i], &lv_font_montserrat_14, 0);
-        lv_obj_set_pos(s_cell_name[i], x + 12, 264);
+        lv_obj_set_pos(s_cell_name[i], x + 28, 234);
         lv_label_set_text_fmt(s_cell_name[i], "C%d", i + 1);
 
         s_cell_mv[i] = lv_label_create(p);
         lv_obj_set_style_text_color(s_cell_mv[i], lv_color_hex(0xE0E0E0), 0);
-        lv_obj_set_style_text_font(s_cell_mv[i], &lv_font_montserrat_12, 0);
-        lv_obj_set_pos(s_cell_mv[i], x + 2, 282);
+        lv_obj_set_style_text_font(s_cell_mv[i], &lv_font_montserrat_14, 0);
+        lv_obj_set_pos(s_cell_mv[i], x + 14, 252);
         lv_label_set_text(s_cell_mv[i], "----");
     }
-
-    /* 底部行 */
-    s_bot_lbl = lv_label_create(p);
-    lv_obj_set_style_text_color(s_bot_lbl, lv_color_hex(0x8E9AAF), 0);
-    lv_obj_set_style_text_font(s_bot_lbl, &lv_font_montserrat_14, 0);
-    lv_obj_set_pos(s_bot_lbl, 0, 320);
-    lv_label_set_text(s_bot_lbl, "Chg --  Dsg --  T --  ALM NONE");
 }
 
 /* ===== Chart ===== */
 static void build_chart(lv_obj_t *p)
 {
-    lv_obj_set_style_pad_all(p, 8, 0);
+    lv_obj_set_style_pad_all(p, 6, 0);
     lv_obj_set_style_bg_color(p, lv_color_hex(0x101218), 0);
     lv_obj_remove_flag(p, LV_OBJ_FLAG_SCROLLABLE);
 
@@ -141,13 +161,13 @@ static void build_chart(lv_obj_t *p)
     lv_label_set_text(s_chart_top_lbl, "Pack -- V    I -- mA");
 
     s_chart = lv_chart_create(p);
-    lv_obj_set_size(s_chart, 304, 340);
-    lv_obj_set_pos(s_chart, 0, 28);
+    lv_obj_set_size(s_chart, 468, 252);
+    lv_obj_set_pos(s_chart, 0, 22);
     lv_chart_set_type(s_chart, LV_CHART_TYPE_LINE);
-    lv_chart_set_point_count(s_chart, 60);
+    lv_chart_set_point_count(s_chart, 120);                 /* 横屏更宽,放更多点 */
     lv_chart_set_update_mode(s_chart, LV_CHART_UPDATE_MODE_SHIFT);
-    lv_chart_set_range(s_chart, LV_CHART_AXIS_PRIMARY_Y,    0,  22000);   /* mV */
-    lv_chart_set_range(s_chart, LV_CHART_AXIS_SECONDARY_Y, -3000, 3000);  /* mA */
+    lv_chart_set_range(s_chart, LV_CHART_AXIS_PRIMARY_Y,    0,  22000);
+    lv_chart_set_range(s_chart, LV_CHART_AXIS_SECONDARY_Y, -3000, 3000);
     lv_obj_set_style_bg_color(s_chart, lv_color_hex(0x1A1D26), 0);
     lv_obj_set_style_border_width(s_chart, 1, 0);
     lv_obj_set_style_border_color(s_chart, lv_color_hex(0x37474F), 0);
@@ -164,8 +184,9 @@ static void build_setup(lv_obj_t *p)
     lv_obj_set_style_bg_color(p, lv_color_hex(0x101218), 0);
     lv_obj_remove_flag(p, LV_OBJ_FLAG_SCROLLABLE);
 
+    /* START 左 */
     lv_obj_t *btn_start = lv_button_create(p);
-    lv_obj_set_size(btn_start, 296, 100);
+    lv_obj_set_size(btn_start, 220, 120);
     lv_obj_set_pos(btn_start, 0, 20);
     lv_obj_set_style_bg_color(btn_start, lv_color_hex(0x388E3C), 0);
     lv_obj_set_style_radius(btn_start, 12, 0);
@@ -176,9 +197,10 @@ static void build_setup(lv_obj_t *p)
     lv_obj_center(l1);
     lv_obj_add_event_cb(btn_start, on_start_clicked, LV_EVENT_CLICKED, NULL);
 
+    /* STOP 右 */
     lv_obj_t *btn_stop = lv_button_create(p);
-    lv_obj_set_size(btn_stop, 296, 100);
-    lv_obj_set_pos(btn_stop, 0, 140);
+    lv_obj_set_size(btn_stop, 220, 120);
+    lv_obj_set_pos(btn_stop, 236, 20);
     lv_obj_set_style_bg_color(btn_stop, lv_color_hex(0xD32F2F), 0);
     lv_obj_set_style_radius(btn_stop, 12, 0);
     lv_obj_t *l2 = lv_label_create(btn_stop);
@@ -191,8 +213,8 @@ static void build_setup(lv_obj_t *p)
     s_setup_status_lbl = lv_label_create(p);
     lv_obj_set_style_text_color(s_setup_status_lbl, lv_color_hex(0x9CA3AF), 0);
     lv_obj_set_style_text_font(s_setup_status_lbl, &lv_font_montserrat_20, 0);
-    lv_obj_set_pos(s_setup_status_lbl, 0, 280);
-    lv_label_set_text(s_setup_status_lbl, "State: IDLE");
+    lv_obj_set_pos(s_setup_status_lbl, 0, 170);
+    lv_label_set_text(s_setup_status_lbl, "State: IDLE    ALM: NONE");
 }
 
 /* ===== Public ===== */
@@ -207,7 +229,7 @@ void bms_ui_init(fm_ctx_t *fm)
     s_tv = lv_tabview_create(scr);
     lv_tabview_set_tab_bar_position(s_tv, LV_DIR_TOP);
     lv_tabview_set_tab_bar_size(s_tv, 40);
-    lv_obj_set_size(s_tv, 320, 480);
+    lv_obj_set_size(s_tv, 480, 320);
 
     build_dashboard(lv_tabview_add_tab(s_tv, "Dash"));
     build_chart    (lv_tabview_add_tab(s_tv, "Chart"));
@@ -222,6 +244,9 @@ void bms_ui_update(const fm_ctx_t *ctx)
     lv_obj_set_style_bg_color(s_dot, color_for_state(ctx->state), 0);
     lv_label_set_text(s_state_lbl, state_short(ctx->state));
 
+    snprintf(buf, sizeof(buf), "ALM: %s", err_short(ctx->error));
+    lv_label_set_text(s_alm_lbl, buf);
+
     snprintf(buf, sizeof(buf), "%lu.%03lu V",
              (unsigned long)(ctx->pack_mV / 1000U),
              (unsigned long)(ctx->pack_mV % 1000U));
@@ -231,6 +256,13 @@ void bms_ui_update(const fm_ctx_t *ctx)
     snprintf(buf, sizeof(buf), "%s%ld mA", i_mA >= 0 ? "+" : "", (long)i_mA);
     lv_label_set_text(s_cur_lbl, buf);
 
+    snprintf(buf, sizeof(buf), "Chg %d mAh", (int)ctx->charged_mAh);
+    lv_label_set_text(s_chg_lbl, buf);
+    snprintf(buf, sizeof(buf), "Dsg %d mAh", (int)ctx->discharged_mAh);
+    lv_label_set_text(s_dsg_lbl, buf);
+    snprintf(buf, sizeof(buf), "T %d C", ctx->temp_C);
+    lv_label_set_text(s_temp_lbl, buf);
+
     for (int i = 0; i < 5; ++i) {
         int32_t v = (int32_t)ctx->cell_mV[i];
         int32_t vc = v;
@@ -238,16 +270,11 @@ void bms_ui_update(const fm_ctx_t *ctx)
         if (vc > 4250) vc = 4250;
         lv_bar_set_value(s_cell_bar[i], vc, LV_ANIM_OFF);
 
-        snprintf(buf, sizeof(buf), "%u.%02u",
+        snprintf(buf, sizeof(buf), "%u.%02uV",
                  (unsigned)(ctx->cell_mV[i] / 1000U),
                  (unsigned)((ctx->cell_mV[i] % 1000U) / 10U));
         lv_label_set_text(s_cell_mv[i], buf);
     }
-
-    snprintf(buf, sizeof(buf), "Chg %d  Dsg %d  T %dC  ALM %s",
-             (int)ctx->charged_mAh, (int)ctx->discharged_mAh,
-             ctx->temp_C, err_short(ctx->error));
-    lv_label_set_text(s_bot_lbl, buf);
 
     /* Chart */
     lv_chart_set_next_value(s_chart, s_chart_v, (int32_t)ctx->pack_mV);
