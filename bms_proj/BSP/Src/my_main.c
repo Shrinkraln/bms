@@ -25,7 +25,7 @@
 #include "bq76920.h"
 #include "periph_tests.h"
 #include "dac8552.h"
-#include "lcd_st7789.h"
+#include "lcd_st7796.h"
 #include "can_test.h"
 #include "formation.h"
 #include "can_report.h"

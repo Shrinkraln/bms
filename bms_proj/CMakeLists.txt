@@ -61,11 +61,11 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     BSP/Src/bq76920.c
     BSP/Src/periph_tests.c
     BSP/Src/dac8552.c
-    BSP/Src/lcd_st7789.c
+    BSP/Src/lcd_st7796.c
     BSP/Src/can_test.c
     BSP/Src/can_report.c
     BSP/Src/formation.c
-    BSP/Src/xpt2046.c
+    BSP/Src/ft6336u.c
     BSP/Src/lvgl_port.c
     BSP/Src/bms_ui.c
     BSP/Src/my_main.c

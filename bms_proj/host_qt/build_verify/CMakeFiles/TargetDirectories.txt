@@ -1,5 +1,0 @@
-D:/coding_codes/bms/bms_proj/host_qt/build_verify/CMakeFiles/bms_host.dir
-D:/coding_codes/bms/bms_proj/host_qt/build_verify/CMakeFiles/edit_cache.dir
-D:/coding_codes/bms/bms_proj/host_qt/build_verify/CMakeFiles/rebuild_cache.dir
-D:/coding_codes/bms/bms_proj/host_qt/build_verify/CMakeFiles/bms_host_autogen_timestamp_deps.dir
-D:/coding_codes/bms/bms_proj/host_qt/build_verify/CMakeFiles/bms_host_autogen.dir
