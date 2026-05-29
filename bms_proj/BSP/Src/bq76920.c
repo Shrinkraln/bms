@@ -172,3 +172,16 @@ bool bq76_read_info(bq76_info_t *info)
     (void)v;
     return true;
 }
+
+/* ===== ALERT 用的轻量接口 ===== */
+bool bq76_read_status(uint8_t *stat)
+{
+    if (!stat) return false;
+    return bq76_read8(BQ76_REG_SYS_STAT, stat);
+}
+
+bool bq76_clear_status(uint8_t bits_to_clear)
+{
+    /* SYS_STAT 是 W1C 寄存器: 写 1 清 0, 写 0 不影响 */
+    return bq76_write8(BQ76_REG_SYS_STAT, bits_to_clear);
+}

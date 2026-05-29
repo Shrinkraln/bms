@@ -1,4 +1,5 @@
 #include "bsp.h"
+#include "bq76_alert.h"
 
 extern UART_HandleTypeDef huart2;   // PA2/PA3 调试串口（CubeMX 生成）
 
@@ -46,11 +47,9 @@ void bsp_init(void)
     gi.Pull = GPIO_PULLUP;
     HAL_GPIO_Init(KEY1_PORT, &gi);
 
-    /* BQ76 ALERT PB3 输入（外部已下拉/上拉看实际电路，这里浮空读） */
-    gi.Pin  = BQ76_ALERT_PIN;
-    gi.Mode = GPIO_MODE_INPUT;
-    gi.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(BQ76_ALERT_PORT, &gi);
+    /* BQ76 ALERT PB3 输入: CubeMX 已配 EXTI_RISING + PULLDOWN + EXTI3_IRQn 优先级 2,
+     * 这里不要再 HAL_GPIO_Init() 覆盖, 否则会把 EXTI 模式抹成 plain input。
+     * 见 Core/Src/gpio.c 中 BQ76_ALTER_IN_Pin 段。 */
 }
 
 void led_g_on(void)     { HAL_GPIO_WritePin(LED_G_PORT, LED_G_PIN, GPIO_PIN_SET); }
@@ -106,6 +105,21 @@ bool bq76_alert_active(void)
 }
 
 void delay_ms(uint32_t ms) { HAL_Delay(ms); }
+
+/* ===== EXTI 中断回调集中分发 =====
+ * HAL_GPIO_EXTI_IRQHandler() (在 stm32g4xx_it.c 的 EXTIx_IRQHandler 内调) 会
+ * 调到这里。HAL 默认是 __weak, 我们提供强符号一次性覆盖, 按 GPIO_Pin 分发:
+ *   - PB3 = BQ76_ALERT_PIN  -> bq76_alert_isr()
+ *   - PA8 = TOUCH_INT_Pin   -> (FT6336U 目前轮询, 占位)
+ *   - PB12 = KEY1_PIN       -> (按键目前轮询, 占位)
+ * 任何耗时操作 (I2C/打印) 都丢给 main 的 *_poll() 处理。 */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    if (GPIO_Pin == BQ76_ALERT_PIN) {
+        bq76_alert_isr();
+    }
+    /* 其他 pin 暂不处理: TOUCH_INT / KEY1 仍走轮询 */
+}
 
 /* ===== 串口 printf 重定向 ===== */
 int uart_dbg_write(const uint8_t *buf, uint16_t len)

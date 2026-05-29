@@ -65,6 +65,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     BSP/Src/can_test.c
     BSP/Src/can_report.c
     BSP/Src/can_cmd.c
+    BSP/Src/bq76_alert.c
     BSP/Src/formation.c
     BSP/Src/ft6336u.c
     BSP/Src/lvgl_port.c

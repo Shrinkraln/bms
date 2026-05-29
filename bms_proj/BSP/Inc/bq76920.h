@@ -37,8 +37,24 @@ typedef struct {
     uint16_t ts1_raw;           // NTC 原始 ADC
 } bq76_info_t;
 
+/* SYS_STAT 位定义 (与数据手册一致) */
+#define BQ76_STAT_CC_READY      (1u << 7)
+#define BQ76_STAT_DEVICE_XREADY (1u << 5)
+#define BQ76_STAT_OVRD_ALERT    (1u << 4)
+#define BQ76_STAT_UV            (1u << 3)
+#define BQ76_STAT_OV            (1u << 2)
+#define BQ76_STAT_SCD           (1u << 1)
+#define BQ76_STAT_OCD           (1u << 0)
+#define BQ76_STAT_FAULT_MASK    (BQ76_STAT_DEVICE_XREADY | BQ76_STAT_OVRD_ALERT | \
+                                 BQ76_STAT_UV | BQ76_STAT_OV |                    \
+                                 BQ76_STAT_SCD | BQ76_STAT_OCD)
+
 /* 必须先调用 init，发起 ADC_EN 和清错 */
 bool bq76_init(void);
 bool bq76_read_info(bq76_info_t *info);
+
+/* 轻量 ALERT 处理用: 只读/写 SYS_STAT, 避免 read_info 那么重 (~16 笔 I2C) */
+bool bq76_read_status(uint8_t *stat);
+bool bq76_clear_status(uint8_t bits_to_clear);   /* 写 1 清 0; 传 0xFF 清所有 */
 
 #endif

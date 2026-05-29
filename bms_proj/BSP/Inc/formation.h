@@ -90,4 +90,8 @@ void  fm_tick(fm_ctx_t *ctx);
 /* 状态名 (打印用)。 */
 const char *fm_state_name(fm_state_t s);
 
+/* 外部模块 (如 BQ76920 ALERT 中断处理) 强制把 FSM 推进 ERROR 并关断输出。
+ * 已在 ERROR 态则只更新 error 码 (取最大严重程度)。 */
+void  fm_external_fail(fm_ctx_t *ctx, fm_error_t e);
+
 #endif

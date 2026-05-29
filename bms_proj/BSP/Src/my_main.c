@@ -30,6 +30,7 @@
 #include "formation.h"
 #include "can_report.h"
 #include "can_cmd.h"
+#include "bq76_alert.h"
 #include "lvgl_port.h"
 #include "bms_ui.h"
 #include "my_main.h"
@@ -249,6 +250,7 @@ void set_up(void)
     if (can_report_init())  printf("[CAN] TX 0x100/0x101/0x102 @1Hz, RX cmd 0x200 enabled\r\n");
     else                    printf("[CAN] init failed\r\n");
     can_cmd_init(&fm);
+    bq76_alert_init(&fm);   /* PB3 EXTI -> 主循环 bq76_alert_poll() 消费 */
 
     /* LVGL + BMS 仪表盘 (依赖 lcd_init 已在自检中跑过) */
     lvgl_port_init();
@@ -269,6 +271,9 @@ void set_up(void)
 
         /* 上位机命令 (0x200): drain RxFIFO0 并执行 */
         can_cmd_poll();
+
+        /* BQ76920 ALERT: 优先于 fm_tick 处理, 任何保护位 -> 关 DAC + ERROR */
+        bq76_alert_poll();
 
         /* 推进状态机：刷新电压/电流/温度，积分容量，活动态驱动 DAC 恒流 */
         fm_tick(&fm);

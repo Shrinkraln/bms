@@ -140,6 +140,22 @@ void fm_stop(fm_ctx_t *ctx)
     fm_goto(ctx, FM_IDLE);
 }
 
+/* 外部强制失败 (BQ76920 ALERT 等硬件中断走的路径)。
+ * 关 DAC -> 设错误码 -> 进 ERROR 态。打印含 SYS_STAT 等当时上下文。
+ * 已经是 ERROR 不再覆盖 state，但若新错误码更"重要"则覆写 (保留首因为主)。 */
+void fm_external_fail(fm_ctx_t *ctx, fm_error_t e)
+{
+    if (!ctx) return;
+    fm_output_off();
+    if (ctx->state != FM_ERROR) {
+        ctx->error = e;
+        fm_goto(ctx, FM_ERROR);
+    } else if (ctx->error == FM_ERR_NONE) {
+        ctx->error = e;
+    }
+    /* 若已是 ERROR 且 error 已 latch, 保留首因, 只是再次确认输出已关 */
+}
+
 void fm_tick(fm_ctx_t *ctx)
 {
     uint32_t now = HAL_GetTick();
