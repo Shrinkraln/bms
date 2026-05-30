@@ -30,4 +30,9 @@ bool can_report_init(void);
 /* 发送一组化成状态 (3 帧)。Tx FIFO 满时丢弃，不阻塞。 */
 bool can_report_send_status(const fm_ctx_t *ctx);
 
+/* 主循环周期调用 (建议每秒一次)。检测 CAN 协议状态，若进入 Bus-Off
+ * 自动尝试 Stop + Start 恢复。CAN 线被拔/噪声会引起 Bus-Off, 否则节点
+ * 失联后不会自动回来。返回 true 表示总线当前 Active. */
+bool can_report_recover_if_busoff(void);
+
 #endif

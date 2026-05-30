@@ -1,5 +1,6 @@
 #include "can_report.h"
 #include "stm32g4xx_hal.h"
+#include <stdio.h>
 
 extern FDCAN_HandleTypeDef hfdcan1;
 
@@ -47,6 +48,38 @@ static bool can_tx(uint16_t id, const uint8_t data[8])
     tx.MessageMarker       = 0;
 
     return HAL_FDCAN_AddMessageToTxFifoQ(&hfdcan1, &tx, (uint8_t *)data) == HAL_OK;
+}
+
+/* === Bus-Off 恢复 ===
+ * FDCAN 进入 Bus-Off (TEC > 255) 后, 默认按 ISO 11898 进入恢复序列:
+ *   需要在 RX 引脚上看到 128 次连续 11 个隐性位才会回 Error-Active。
+ * 但若总线完全没流量 (上位机也下了线), 永远恢复不了。
+ * 这里检测到 Bus-Off 后, 主动 Stop->Start 强制重启控制器。
+ * 节流: 至少间隔 1s 重启一次, 避免疯狂重启把日志/CPU 耗光。 */
+bool can_report_recover_if_busoff(void)
+{
+    FDCAN_ProtocolStatusTypeDef ps = {0};
+    if (HAL_FDCAN_GetProtocolStatus(&hfdcan1, &ps) != HAL_OK) return false;
+    if (!ps.BusOff) return true;       /* 正常 */
+
+    static uint32_t last_restart_tick = 0;
+    uint32_t now = HAL_GetTick();
+    if ((now - last_restart_tick) < 1000U) return false;
+    last_restart_tick = now;
+
+    FDCAN_ErrorCountersTypeDef ec = {0};
+    (void)HAL_FDCAN_GetErrorCounters(&hfdcan1, &ec);
+    printf("[CAN] BusOff detected -> restart (TEC=%lu REC=%lu LEC=%lu)\r\n",
+           (unsigned long)ec.TxErrorCnt, (unsigned long)ec.RxErrorCnt,
+           (unsigned long)ps.LastErrorCode);
+
+    if (HAL_FDCAN_Stop(&hfdcan1) != HAL_OK) return false;
+    if (HAL_FDCAN_Start(&hfdcan1) != HAL_OK) {
+        printf("[CAN] restart Start() failed\r\n");
+        return false;
+    }
+    printf("[CAN] restart OK\r\n");
+    return true;
 }
 
 bool can_report_send_status(const fm_ctx_t *ctx)

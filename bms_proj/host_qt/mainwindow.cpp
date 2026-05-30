@@ -220,6 +220,19 @@ void MainWindow::onFramesReceived()
         const QCanBusFrame f = m_dev->readFrame();
         if (f.frameType() != QCanBusFrame::DataFrame) continue;
         const QByteArray pl = f.payload();
+
+        /* ACK 帧 0x201: opcode + ack_code + 当时 fm_state + fm_error */
+        if (f.frameId() == bms::ID_ACK && pl.size() >= 4) {
+            const auto *b = reinterpret_cast<const uint8_t *>(pl.constData());
+            const QString msg = QString("ACK %1 → %2 (state=%3 err=%4)")
+                                    .arg(bms::opName(b[0]))
+                                    .arg(bms::ackName(b[1]))
+                                    .arg(bms::stateName(b[2]))
+                                    .arg(bms::errorName(b[3]));
+            m_status->setText(msg);
+            continue;
+        }
+
         const bool isStatus = bms::applyFrame(
             m_data, f.frameId(),
             reinterpret_cast<const uint8_t *>(pl.constData()), pl.size());

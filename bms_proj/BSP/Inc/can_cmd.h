@@ -20,12 +20,19 @@
 #include "formation.h"
 
 #define CAN_CMD_ID            0x200
+#define CAN_ACK_ID            0x201   /* 命令处理完后回发 */
 
 #define CAN_CMD_OP_START      0x01
 #define CAN_CMD_OP_STOP       0x02
 #define CAN_CMD_OP_SET_CHG_I  0x03
 #define CAN_CMD_OP_SET_DSG_I  0x04
 #define CAN_CMD_OP_CLEAR_ERR  0x05
+
+/* ACK 状态码 (写在 ACK 帧 [1]) */
+#define CAN_ACK_OK            0x00
+#define CAN_ACK_BAD_STATE     0x01   /* 当前 FSM 状态不允许该操作 (START 在 CC_CHARGE 等) */
+#define CAN_ACK_BAD_PARAM     0x02   /* 参数越界 (电流 = 0 或 > 10A) */
+#define CAN_ACK_UNKNOWN_OP    0xFF
 
 /* 保存 fm 指针, 命令进来后操作它。 */
 void can_cmd_init(fm_ctx_t *fm);

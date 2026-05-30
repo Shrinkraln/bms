@@ -31,6 +31,7 @@
 #include "can_report.h"
 #include "can_cmd.h"
 #include "bq76_alert.h"
+#include "watchdog.h"
 #include "lvgl_port.h"
 #include "bms_ui.h"
 #include "my_main.h"
@@ -259,6 +260,10 @@ void set_up(void)
 
     printf("\r\n[Formation] KEY1 = switch tab; touch Setup page START to begin.\r\n");
 
+    /* IWDG: 在所有 init + 自检 (含 HAL_Delay) 都过了之后再起,
+     * 1.6s 超时, 任何后续主循环卡死会导致 MCU 复位 */
+    watchdog_init();
+
     uint32_t tick = HAL_GetTick();
     while (1) {
         /* KEY1: 切到下一个 UI 标签 (启动化成走 Setup 页的触摸 START 按钮) */
@@ -295,8 +300,10 @@ void set_up(void)
                    fm.cell_mV[3], fm.cell_mV[4]);
 
             can_report_send_status(&fm);
+            can_report_recover_if_busoff();   /* CAN 线断/噪声后自动恢复 */
             bms_ui_update(&fm);
         }
+        watchdog_feed();   /* 每轮喂狗 (~10ms 周期, 远低于 1.6s 阈值) */
         HAL_Delay(10);
     }
 }

@@ -33,6 +33,37 @@ constexpr uint8_t  CMD_SET_CHG_I  = 0x03;  // [1:2] u16 mA
 constexpr uint8_t  CMD_SET_DSG_I  = 0x04;  // [1:2] u16 mA
 constexpr uint8_t  CMD_CLEAR_ERR  = 0x05;  // 无参
 
+/* 板子 → 上位机 ACK 帧 (8 字节)
+ * [0]=opcode (回声), [1]=ack_code, [2]=fm_state, [3]=fm_error, [4..7]=保留 */
+constexpr uint32_t ID_ACK     = 0x201;
+constexpr uint8_t  ACK_OK         = 0x00;
+constexpr uint8_t  ACK_BAD_STATE  = 0x01;
+constexpr uint8_t  ACK_BAD_PARAM  = 0x02;
+constexpr uint8_t  ACK_UNKNOWN_OP = 0xFF;
+
+inline QString ackName(uint8_t a)
+{
+    switch (a) {
+    case ACK_OK:         return QStringLiteral("OK");
+    case ACK_BAD_STATE:  return QStringLiteral("BAD_STATE");
+    case ACK_BAD_PARAM:  return QStringLiteral("BAD_PARAM");
+    case ACK_UNKNOWN_OP: return QStringLiteral("UNKNOWN_OP");
+    default:             return QStringLiteral("?");
+    }
+}
+
+inline QString opName(uint8_t o)
+{
+    switch (o) {
+    case CMD_START:     return QStringLiteral("START");
+    case CMD_STOP:      return QStringLiteral("STOP");
+    case CMD_SET_CHG_I: return QStringLiteral("SET_CHG_I");
+    case CMD_SET_DSG_I: return QStringLiteral("SET_DSG_I");
+    case CMD_CLEAR_ERR: return QStringLiteral("CLEAR_ERR");
+    default:            return QString::asprintf("OP_%02X", o);
+    }
+}
+
 struct BmsData {
     uint16_t pack_mV       = 0;
     int16_t  current_mA    = 0;
