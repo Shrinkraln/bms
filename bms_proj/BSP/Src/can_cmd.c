@@ -118,8 +118,9 @@ void can_cmd_poll(void)
         if (HAL_FDCAN_GetRxMessage(&hfdcan1, FDCAN_RX_FIFO0, &hdr, data) != HAL_OK) break;
         if (hdr.Identifier != CAN_CMD_ID) continue;
 
-        /* dlc 字段是 enum (FDCAN_DLC_BYTES_n), 不是直接的字节数 */
-        uint8_t len = (uint8_t)(hdr.DataLength >> 16);  /* HAL G4: DataLength 是 enum 值; 简化按 8 处理 */
+        /* DataLength 是 FDCAN_DLC_BYTES_n 编码 = (字节数<<16); 右移 16 还原字节数。
+         * Classic CAN 仅 0..8; FD 的 12/16/.. 这里用不到, 越界一律按 8。 */
+        uint8_t len = (uint8_t)(hdr.DataLength >> 16);
         if (len == 0 || len > 8) len = 8;
 
         uint8_t opcode = data[0];
