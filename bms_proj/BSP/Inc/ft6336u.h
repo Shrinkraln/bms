@@ -13,17 +13,13 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-/* ===== 引脚 (上板按需调整) ===== */
+/* ===== 引脚 (按实际转接板接线) ===== */
 #define FT6_I2C_ADDR7   0x38
 
 #define FT6_INT_PORT    GPIOA
-#define FT6_INT_PIN     GPIO_PIN_8
-/* RST 与 LCD_RST 共用 PB2: 默认不在 ft6336u_init 里再次复位
- * (lcd_init 时的复位脉冲已经同时复位了 FT6336U)。
- * 若 RST 接独立 GPIO, 把这里改 1 并改下面的 PORT/PIN。 */
-#define FT6_USE_RST     0
-#define FT6_RST_PORT    GPIOB
-#define FT6_RST_PIN     GPIO_PIN_2
+#define FT6_INT_PIN     GPIO_PIN_8      /* 触摸中断, 按下拉低 */
+/* RST = PA0 (独立引脚, 不与 LCD_RST 共享)
+ * I²C = PB13(SCL) / PB15(SDA), 通过 sw_i2c_touch 软件驱动 */
 
 /* ===== 寄存器 (节选, 见 FT6X36_寄存器地址.pdf) ===== */
 #define FT6_REG_DEVICE_MODE   0x00

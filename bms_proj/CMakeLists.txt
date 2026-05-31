@@ -68,6 +68,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     BSP/Src/bq76_alert.c
     BSP/Src/watchdog.c
     BSP/Src/formation.c
+    BSP/Src/sw_i2c_touch.c
     BSP/Src/ft6336u.c
     BSP/Src/lvgl_port.c
     BSP/Src/bms_ui.c

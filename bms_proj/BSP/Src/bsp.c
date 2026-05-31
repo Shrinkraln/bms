@@ -2,6 +2,7 @@
 #include "bq76_alert.h"
 
 extern UART_HandleTypeDef huart2;   // PA2/PA3 调试串口（CubeMX 生成）
+extern SPI_HandleTypeDef  hspi2;    // CubeMX 生成但实际不用 (PB13/15 是触摸 I²C)
 
 void bsp_init(void)
 {
@@ -51,6 +52,36 @@ void bsp_init(void)
     /* BQ76 ALERT PB3 输入: CubeMX 已配 EXTI_RISING + PULLDOWN + EXTI3_IRQn 优先级 2,
      * 这里不要再 HAL_GPIO_Init() 覆盖, 否则会把 EXTI 模式抹成 plain input。
      * 见 Core/Src/gpio.c 中 BQ76_ALTER_IN_Pin 段。 */
+
+    /* ---- 撤销 SPI2, 释放 PB13/PB15 给触摸 I²C ----
+     * CubeMX 生成的 MX_SPI2_Init() 把 PB13/14/15 配成 SPI2_AF, 但实际:
+     *   PB13 = FT6336U I²C SCL
+     *   PB15 = FT6336U I²C SDA
+     *   PB14 = NC (空)
+     * 这里反初始化 SPI2, 然后把 PB13/PB15 重配为开漏输出 (软件 I²C)。 */
+    HAL_SPI_DeInit(&hspi2);
+    __HAL_RCC_SPI2_CLK_DISABLE();
+
+    /* PB13 SCL: 开漏 + 上拉 (I²C 总线需外部上拉电阻, 这里内部上拉兜底) */
+    gi.Pin   = GPIO_PIN_13;
+    gi.Mode  = GPIO_MODE_OUTPUT_OD;
+    gi.Pull  = GPIO_PULLUP;
+    gi.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(GPIOB, &gi);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_13, GPIO_PIN_SET);
+
+    /* PB15 SDA: 同上 */
+    gi.Pin = GPIO_PIN_15;
+    HAL_GPIO_Init(GPIOB, &gi);
+    HAL_GPIO_WritePin(GPIOB, GPIO_PIN_15, GPIO_PIN_SET);
+
+    /* PA0: 触摸 RST (推挽, 默认高=运行) — CubeMX 标注为 TOUCH_CS, 实际接触摸复位 */
+    gi.Pin   = GPIO_PIN_0;
+    gi.Mode  = GPIO_MODE_OUTPUT_PP;
+    gi.Pull  = GPIO_NOPULL;
+    gi.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOA, &gi);
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET);
 }
 
 void led_g_on(void)     { HAL_GPIO_WritePin(LED_G_PORT, LED_G_PIN, GPIO_PIN_SET); }
