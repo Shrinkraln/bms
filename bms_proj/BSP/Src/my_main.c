@@ -203,21 +203,18 @@ void set_up(void)
     led_g_off(); led_r_off();
     buzzer_beep(80);
 
-    printf("\r\n\r\n=========================================\r\n");
-    printf("  BMS 5S Hardware Self-Test  v1.0\r\n");
-    printf("  Build: %s %s\r\n", __DATE__, __TIME__);
-    printf("=========================================\r\n");
+    /* 直接测 LCD, 所有 printf/自检暂跳过 (printf 可能阻塞) */
+    t_lcd();
 
-    /* —— 测试顺序 —— */
+    /* 其余自检放后面, 不阻塞 LCD 调试 */
     t_io_self();
-    t_key();
-    t_bq76920();         /* BQ76920 自己上电就活，先测 */
-    t_bq34z100();        /* 内部会拉 VEN */
-    t_i2c_scan();        /* 此时 BQ34 也使能了，扫一次更完整 */
+    /* t_key(); */           /* 暂时跳过: 等按键 3s 会阻塞 */
+    t_bq76920();
+    t_bq34z100();
+    t_i2c_scan();
     t_ina226();
     t_tmp117();
     t_dac8552();
-    t_lcd();
     t_can();
 
     /* —— 汇总 —— */
