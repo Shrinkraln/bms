@@ -118,10 +118,12 @@ void can_cmd_poll(void)
         if (HAL_FDCAN_GetRxMessage(&hfdcan1, FDCAN_RX_FIFO0, &hdr, data) != HAL_OK) break;
         if (hdr.Identifier != CAN_CMD_ID) continue;
 
-        /* DataLength 是 FDCAN_DLC_BYTES_n 编码 = (字节数<<16); 右移 16 还原字节数。
-         * Classic CAN 仅 0..8; FD 的 12/16/.. 这里用不到, 越界一律按 8。 */
-        uint8_t len = (uint8_t)(hdr.DataLength >> 16);
-        if (len == 0 || len > 8) len = 8;
+        /* RX 路径里 HAL 已把寄存器 DLC 域 (>>16) 填进 hdr.DataLength, 此处它就是
+         * DLC 码 (0..15); Classic CAN 且 <=8 时 DLC 码 == 字节数。直接当字节数用,
+         * FD 的 12/16/.. 用不到, >8 一律按 8 处理。 */
+        uint8_t len = (uint8_t)hdr.DataLength;
+        if (len > 8) len = 8;
+        if (len < 1) continue;          /* 空帧无 opcode, 丢弃 */
 
         uint8_t opcode = data[0];
         uint8_t ack    = can_cmd_dispatch(opcode, data, len);
