@@ -2,7 +2,7 @@
 #include "bq76_alert.h"
 
 extern UART_HandleTypeDef huart2;   // PA2/PA3 调试串口（CubeMX 生成）
-extern SPI_HandleTypeDef  hspi2;    // CubeMX 生成但实际不用 (PB13/15 是触摸 I²C)
+/* SPI2 已在 CubeMX 中删除; PB13/PB15 下面由 bsp_init 重配为触摸 I²C GPIO */
 
 void bsp_init(void)
 {
@@ -59,9 +59,6 @@ void bsp_init(void)
      *   PB15 = FT6336U I²C SDA
      *   PB14 = NC (空)
      * 这里反初始化 SPI2, 然后把 PB13/PB15 重配为开漏输出 (软件 I²C)。 */
-    HAL_SPI_DeInit(&hspi2);
-    __HAL_RCC_SPI2_CLK_DISABLE();
-
     /* PB13 SCL: 开漏 + 上拉 (I²C 总线需外部上拉电阻, 这里内部上拉兜底) */
     gi.Pin   = GPIO_PIN_13;
     gi.Mode  = GPIO_MODE_OUTPUT_OD;
