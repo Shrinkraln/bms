@@ -35,8 +35,9 @@ void bsp_init(void)
     HAL_GPIO_Init(DAC_CS_PORT, &gi);
     HAL_GPIO_WritePin(DAC_CS_PORT, DAC_CS_PIN, GPIO_PIN_SET);
 
-    /* LCD 控制脚 */
-    gi.Pin = LCD_DC_PIN | LCD_CS_PIN | LCD_RST_PIN;
+    /* LCD 控制脚 (DC/CS/RST 需要 HIGH 速度; CubeMX 也配了 HIGH, 这里统一) */
+    gi.Pin   = LCD_DC_PIN | LCD_CS_PIN | LCD_RST_PIN;
+    gi.Speed = GPIO_SPEED_FREQ_HIGH;
     HAL_GPIO_Init(GPIOB, &gi);
     HAL_GPIO_WritePin(LCD_CS_PORT, LCD_CS_PIN, GPIO_PIN_SET);
     HAL_GPIO_WritePin(LCD_RST_PORT, LCD_RST_PIN, GPIO_PIN_SET);
