@@ -56,9 +56,12 @@ void MX_SPI1_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN SPI1_Init 2 */
-  /* CubeMX 默认 NSSP=ENABLE, 但 LCD 用软件 CS, 硬件 NSS 脉冲会干扰;
-   * 放在 USER CODE 区, CubeMX 重新生成不会覆盖 */
-  hspi1.Init.NSSPMode = SPI_NSS_PULSE_DISABLE;
+  /* 厂家 LCD demo 用 CPOL=1 CPHA=1 (Mode 3), CubeMX 默认 Mode 0;
+   * ST7796 支持 Mode 0 和 3, 但保险起见和厂家一致。
+   * 同时禁用 NSSP 脉冲 (软件 CS, 不需要硬件 NSS) */
+  hspi1.Init.CLKPolarity = SPI_POLARITY_HIGH;   /* CPOL=1 */
+  hspi1.Init.CLKPhase    = SPI_PHASE_2EDGE;     /* CPHA=1 */
+  hspi1.Init.NSSPMode    = SPI_NSS_PULSE_DISABLE;
   HAL_SPI_Init(&hspi1);
   /* USER CODE END SPI1_Init 2 */
 
@@ -93,7 +96,9 @@ void HAL_SPI_MspInit(SPI_HandleTypeDef* spiHandle)
     HAL_NVIC_SetPriority(SPI1_IRQn, 10, 0);
     HAL_NVIC_EnableIRQ(SPI1_IRQn);
   /* USER CODE BEGIN SPI1_MspInit 1 */
-
+    /* LCD 驱动用 polling 模式 (HAL_SPI_Transmit), 不需要 SPI 中断;
+     * CubeMX 默认开了中断, 中断处理器会修改 HAL 状态机导致 polling 失败 */
+    HAL_NVIC_DisableIRQ(SPI1_IRQn);
   /* USER CODE END SPI1_MspInit 1 */
   }
 }

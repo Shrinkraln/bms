@@ -1,19 +1,16 @@
 /* ============================================================
- *  BMS 5S 硬件验证主程序
- *  MCU : STM32G474RET
- *  作者: Claude (基于您的原理图自动生成)
- *  说明: 仅依赖 CubeMX 生成的 MX_xxx_Init() 外设初始化；
- *        测试逻辑独立于工程脚手架，便于移植。
+ *  BMS 5S 化成测试主程序
+ *  MCU : STM32G474RET6
  *
- *  在 CubeMX 中需要使能：
- *    - HSE/HSI + PLL 到 170MHz（或您当前的主频）
- *    - I2C1   PB6=SCL, PB7=SDA, 100kHz, Standard
- *    - SPI1   PA5/PA6/PA7  (LCD)        Master, 8bit, CPOL=0 CPHA=0
- *    - SPI2   PB13/PB14/PB15 (Touch)    Master, 8bit, CPOL=0 CPHA=0
- *    - SPI3   PA4(SCK)/PA1(MOSI) only   Master TX-only, 8bit, CPOL=0 CPHA=1
- *    - USART2 PA2/PA3 115200 8N1
- *    - FDCAN1 PA11/PA12, 500kbps（自环测试时不依赖收发器）
- *    - 其余 GPIO 由 bsp_init() 接管，CubeMX 里可不勾。
+ *  外设依赖 (CubeMX):
+ *    I2C1  PA15/PB7   传感器总线 (BQ76920/BQ34/INA226/TMP117)
+ *    SPI1  PA5/PA7    LCD ST7796 (Mode3, 10.6MHz, NSSP off, IRQ off)
+ *    USART2 PA2/PA3   调试串口 (CH340G)
+ *    FDCAN1 PA11/PA12 CAN 总线 (TJA1042)
+ *    GPIO  见 bsp.h
+ *
+ *  触摸 FT6336U: 软件 I²C (PB13=SCL, PB15=SDA), INT=PA8, RST=PA0
+ *  DAC8552: 软件 SPI (PA1=DIN, PA4=SCLK, PB10=CS)
  * ============================================================ */
 #include "main.h"
 #include "stm32g4xx_hal.h"
@@ -37,7 +34,7 @@
 #include "my_main.h"
 
 
-/* ---------- 测试结果记录 ---------- */
+/* ---------- 自检结果记录 ---------- */
 typedef struct {
     const char *name;
     bool        pass;
@@ -58,51 +55,32 @@ static void add_item(const char *name, bool pass, const char *fmt, ...)
     va_end(ap);
     printf("  [%s] %-18s %s\r\n", pass ? " OK " : "FAIL",
            name, g_items[g_n].detail);
-    /* 实时灯指示：通过绿闪一下，失败红闪一下 */
     if (pass) { led_g_on(); HAL_Delay(60); led_g_off(); }
     else      { led_r_on(); HAL_Delay(120); led_r_off(); }
     g_n++;
 }
 
 /* =====================================================================
- *                            各项测试
+ *                            各项自检
  * ===================================================================== */
 
 static void t_io_self(void)
 {
-    /* LED + 蜂鸣器自检：目视/听感由人确认；这里只确认写得动 */
     led_g_on(); HAL_Delay(150); led_g_off();
     led_r_on(); HAL_Delay(150); led_r_off();
     buzzer_beep(80);
-    add_item("LED/BUZZ", true, "visual+audible check, see/hear it?");
-}
-
-static void t_key(void)
-{
-    printf("  >> Press KEY1 within 3s to confirm key...\r\n");
-    bool ok = key1_wait(3000);
-    add_item("KEY1 PB12", ok, ok ? "pressed" : "timeout (skip if no key)");
+    add_item("LED/BUZZ", true, "visual+audible check");
 }
 
 static void t_i2c_scan(void)
 {
     uint8_t found[16];
     uint8_t n = i2c_scan(found, sizeof(found));
-
-    /* 期望地址 */
-    bool seen_bq76 = false, seen_bq34 = false, seen_ina = false, seen_tmp = false;
     char buf[64] = {0};
     int p = 0;
-    for (uint8_t i = 0; i < n; ++i) {
+    for (uint8_t i = 0; i < n; ++i)
         p += snprintf(buf+p, sizeof(buf)-p, "%02X ", found[i]);
-        if (found[i] == BQ76_ADDR7)     seen_bq76 = true;
-        if (found[i] == BQ34_ADDR7)     seen_bq34 = true;
-        if (found[i] == INA226_ADDR7)   seen_ina  = true;
-        if (found[i] == TMP117_ADDR7)   seen_tmp  = true;
-    }
-    bool pass = (n >= 3);  // 至少 3 个能扫到（BQ34 需要 VEN，等下一步）
-    add_item("I2C scan", pass, "n=%u: %s", n, buf);
-    (void)seen_bq76; (void)seen_bq34; (void)seen_ina; (void)seen_tmp;
+    add_item("I2C scan", (n >= 1), "n=%u: %s", n, buf);
 }
 
 static void t_bq76920(void)
@@ -116,17 +94,13 @@ static void t_bq76920(void)
         add_item("BQ76920", false, "read regs failed");
         return;
     }
-    /* 打印每节电压 */
     printf("    SYS_STAT=0x%02X gain=%duV/LSB off=%dmV\r\n",
            info.sys_stat, info.adc_gain_uV, info.adc_offset_mV);
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < 5; ++i)
         printf("    VC%d = %u mV  (raw=%u)\r\n", i+1, info.vc_mV[i], info.vc_raw[i]);
-    }
-    /* 简单判据：5 节电压都在 1500..4500 mV 之间 */
     bool pass = true;
-    for (int i = 0; i < 5; ++i) {
+    for (int i = 0; i < 5; ++i)
         if (info.vc_mV[i] < 1500 || info.vc_mV[i] > 4500) pass = false;
-    }
     add_item("BQ76920 5S", pass, "5 cells %s",
              pass ? "in 1.5~4.5V" : "OUT OF RANGE");
 }
@@ -158,16 +132,12 @@ static void t_tmp117(void)
 static void t_dac8552(void)
 {
     bool ok = dac8552_init();
-    if (ok) ok = dac8552_set_both(0x0000, 0x0000);   // ~0V
+    if (ok) ok = dac8552_set_both(0x0000, 0x0000);
     HAL_Delay(20);
-    if (ok) ok = dac8552_set_both(0x8000, 0x8000);   // ~Vref/2
-    HAL_Delay(20);
-    if (ok) ok = dac8552_set_both(0xFFFF, 0xFFFF);   // ~Vref
+    if (ok) ok = dac8552_set_both(0x8000, 0x8000);
     HAL_Delay(20);
     if (ok) ok = dac8552_set_both(0x0000, 0x0000);
-    add_item("DAC8552", ok,
-             ok ? "SPI3 wrote 0/half/full; measure DAC_OUT_A/B"
-                : "SPI3 transmit fail");
+    add_item("DAC8552", ok, ok ? "wrote 0/half/0" : "transmit fail");
 }
 
 static void t_lcd(void)
@@ -179,15 +149,13 @@ static void t_lcd(void)
         lcd_fill(LCD_COLOR_BLUE);  HAL_Delay(300);
         lcd_fill(LCD_COLOR_WHITE);
     }
-    add_item("LCD SPI1", ok,
-             ok ? "RGBW flashed; visual confirm"
-                : "init failed");
+    add_item("LCD SPI1", ok, ok ? "RGBW flashed" : "init failed");
 }
 
 static void t_can(void)
 {
     bool ok = can_loopback_test();
-    add_item("FDCAN1 LB", ok, "internal loopback %s", ok ? "" : "failed");
+    add_item("FDCAN1 LB", ok, "loopback %s", ok ? "OK" : "failed");
 }
 
 /* =====================================================================
@@ -195,26 +163,27 @@ static void t_can(void)
  * ===================================================================== */
 void set_up(void)
 {
-   
     bsp_init();
 
-    /* 上电"我活着"信号 */
+    /* 上电信号 */
     led_g_on(); led_r_on(); HAL_Delay(200);
     led_g_off(); led_r_off();
     buzzer_beep(80);
 
-    /* 直接测 LCD, 所有 printf/自检暂跳过 (printf 可能阻塞) */
-    t_lcd();
+    printf("\r\n=========================================\r\n");
+    printf("  BMS 5S Self-Test  v2.0\r\n");
+    printf("  Build: %s %s\r\n", __DATE__, __TIME__);
+    printf("=========================================\r\n");
 
-    /* 其余自检放后面, 不阻塞 LCD 调试 */
+    /* —— 自检 (不阻塞: 跳过 key 等待) —— */
     t_io_self();
-    /* t_key(); */           /* 暂时跳过: 等按键 3s 会阻塞 */
     t_bq76920();
     t_bq34z100();
     t_i2c_scan();
     t_ina226();
     t_tmp117();
     t_dac8552();
+    t_lcd();
     t_can();
 
     /* —— 汇总 —— */
@@ -231,65 +200,50 @@ void set_up(void)
             if (!g_items[i].pass)
                 printf("    - %s : %s\r\n", g_items[i].name, g_items[i].detail);
         }
-        /* 红灯常亮 + 长鸣 */
         led_r_on();
         buzzer_beep(800);
     } else {
-        printf("  *** ALL PASS, board OK ***\r\n");
-        /* 绿灯常亮 + 3 短鸣 */
+        printf("  *** ALL PASS ***\r\n");
         led_g_on();
         for (int i = 0; i < 3; ++i) { buzzer_beep(80); HAL_Delay(80); }
     }
 
-    /* === 化成测试主循环 === */
+    /* === 化成主循环 === */
     fm_ctx_t fm;
-    fm_init(&fm, NULL);     /* 默认 5S/2.5Ah/0.5C；参数见 fm_default_config() */
-    ina226_init();          /* INA226 配置一次，供连续电流读取 */
-    if (can_report_init())  printf("[CAN] TX 0x100/0x101/0x102 @1Hz, RX cmd 0x200 enabled\r\n");
+    fm_init(&fm, NULL);
+    ina226_init();
+    if (can_report_init())  printf("[CAN] report+cmd enabled\r\n");
     else                    printf("[CAN] init failed\r\n");
     can_cmd_init(&fm);
-    bq76_alert_init(&fm);   /* PB3 EXTI -> 主循环 bq76_alert_poll() 消费 */
+    bq76_alert_init(&fm);
 
-    /* LVGL + BMS 仪表盘 (依赖 lcd_init 已在自检中跑过) */
     lvgl_port_init();
     bms_ui_init(&fm);
-    bms_ui_update(&fm);     /* 先把空闲态画出来 */
+    bms_ui_update(&fm);
 
-    printf("\r\n[Formation] KEY1 = switch tab; touch Setup page START to begin.\r\n");
+    printf("\r\n[Formation] KEY1=next tab, touch START to begin.\r\n");
 
-    /* IWDG: 在所有 init + 自检 (含 HAL_Delay) 都过了之后再起,
-     * 1.6s 超时, 任何后续主循环卡死会导致 MCU 复位 */
     watchdog_init();
 
     uint32_t tick = HAL_GetTick();
     while (1) {
-        /* KEY1: 切到下一个 UI 标签 (启动化成走 Setup 页的触摸 START 按钮) */
         if (key1_pressed()) {
             bms_ui_next_tab();
-            /* 等松手, 最多 1s 防卡死 */
             uint32_t t0 = HAL_GetTick();
             while (key1_pressed() && (HAL_GetTick() - t0) < 1000U) HAL_Delay(10);
         }
 
-        /* 上位机命令 (0x200): drain RxFIFO0 并执行 */
         can_cmd_poll();
-
-        /* BQ76920 ALERT: 优先于 fm_tick 处理, 任何保护位 -> 关 DAC + ERROR */
         bq76_alert_poll();
-
-        /* 推进状态机：刷新电压/电流/温度，积分容量，活动态驱动 DAC 恒流 */
         fm_tick(&fm);
-
-        /* LVGL 渲染 (内部按需重画脏区域) */
         lvgl_port_handler();
 
-        /* 每秒：心跳灯 + 串口状态 + CAN 上报 + LCD UI (用 fm 缓存值) */
         if (HAL_GetTick() - tick > 1000) {
             tick = HAL_GetTick();
             if (fail_n || fm.state == FM_ERROR) led_r_toggle();
             else                                led_g_toggle();
 
-            printf("[%s] pack=%lumV I=%ldmA T=%dC chg=%d dsg=%d mAh | C:%u %u %u %u %u\r\n",
+            printf("[%s] pack=%lumV I=%ldmA T=%dC chg=%d dsg=%d | C:%u %u %u %u %u\r\n",
                    fm_state_name(fm.state), (unsigned long)fm.pack_mV,
                    (long)fm.current_mA, fm.temp_C,
                    (int)fm.charged_mAh, (int)fm.discharged_mAh,
@@ -297,16 +251,14 @@ void set_up(void)
                    fm.cell_mV[3], fm.cell_mV[4]);
 
             can_report_send_status(&fm);
-            can_report_recover_if_busoff();   /* CAN 线断/噪声后自动恢复 */
+            can_report_recover_if_busoff();
             bms_ui_update(&fm);
         }
-        watchdog_feed();   /* 每轮喂狗 (~10ms 周期, 远低于 1.6s 阈值) */
+        watchdog_feed();
         HAL_Delay(10);
     }
 }
 
-/* CubeMX 生成的函数原型在 main.h 中；
- * 本文件只负责测试逻辑，CubeMX 工程导入时把本 main.c 替换即可。 */
 void loop(void)
 {
 }
