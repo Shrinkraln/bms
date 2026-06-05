@@ -28,6 +28,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "my_main.h"
+#include <string.h>
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -94,11 +95,54 @@ int main(void)
   MX_FDCAN1_Init();
   MX_SPI1_Init();
   MX_USART2_UART_Init();
-  MX_SPI2_Init();
   MX_TIM4_Init();
   MX_TIM6_Init();
   MX_I2C1_Init();
+  MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
+
+  /* ====== 最基础硬件测试: 在 set_up 之前先验证 GPIO/UART 能用 ======
+   * 如果这段代码能让 LED 闪 + 串口输出, 说明基础硬件没问题。
+   * 如果连这个都不行, 说明 SystemClock_Config 或某个 MX_Init 失败了,
+   * 程序卡在 Error_Handler 的 while(1) 里。 */
+  {
+      /* 直接操作 GPIO 寄存器, 不依赖 bsp_init */
+      __HAL_RCC_GPIOB_CLK_ENABLE();
+
+      GPIO_InitTypeDef gi = {0};
+      gi.Pin   = GPIO_PIN_4 | GPIO_PIN_5;  /* PB4=LED_G, PB5=LED_R */
+      gi.Mode  = GPIO_MODE_OUTPUT_PP;
+      gi.Pull  = GPIO_NOPULL;
+      gi.Speed = GPIO_SPEED_FREQ_LOW;
+      HAL_GPIO_Init(GPIOB, &gi);
+
+      /* 蜂鸣器 PB8 */
+      gi.Pin = GPIO_PIN_8;
+      HAL_GPIO_Init(GPIOB, &gi);
+
+      /* LED 交替闪 3 轮 + 蜂鸣 → 证明到了这里 */
+      for (int i = 0; i < 3; i++) {
+          HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_SET);   /* 绿亮 */
+          HAL_Delay(200);
+          HAL_GPIO_WritePin(GPIOB, GPIO_PIN_4, GPIO_PIN_RESET); /* 绿灭 */
+          HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_SET);   /* 红亮 */
+          HAL_Delay(200);
+          HAL_GPIO_WritePin(GPIOB, GPIO_PIN_5, GPIO_PIN_RESET); /* 红灭 */
+      }
+      /* 蜂鸣 3 短声 */
+      for (int i = 0; i < 3; i++) {
+          HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_SET);
+          HAL_Delay(50);
+          HAL_GPIO_WritePin(GPIOB, GPIO_PIN_8, GPIO_PIN_RESET);
+          HAL_Delay(100);
+      }
+
+      /* 串口测试: 直接发几个字节 */
+      const char *msg = "[HW TEST] GPIO+UART OK\r\n";
+      HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), 200);
+  }
+  /* ====== 基础测试结束, 进入正式流程 ====== */
+
   set_up();
   /* USER CODE END 2 */
 
@@ -170,10 +214,16 @@ void SystemClock_Config(void)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-  /* User can add his own implementation to report the HAL error return state */
-  __disable_irq();
-  while (1)
-  {
+  /* 红灯快闪 = 某个 MX_Init 或 SystemClock 失败了 */
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+  GPIO_InitTypeDef egi = {0};
+  egi.Pin = GPIO_PIN_5; /* PB5 = LED_RED */
+  egi.Mode = GPIO_MODE_OUTPUT_PP;
+  HAL_GPIO_Init(GPIOB, &egi);
+  while (1) {
+      HAL_GPIO_TogglePin(GPIOB, GPIO_PIN_5);
+      /* 不能用 HAL_Delay (如果 SysTick 没跑), 用忙等 */
+      for (volatile uint32_t d = 0; d < 500000; d++) __NOP();
   }
   /* USER CODE END Error_Handler_Debug */
 }
