@@ -69,6 +69,12 @@ typedef struct {
     /* CV 阶段当前电流设定 (内部状态) */
     float       cv_setpoint_mA;
 
+    /* 算法优化用内部状态 */
+    int32_t     prev_current_mA;    /* 上一轮电流 (梯形积分) */
+    uint16_t    cell_max_mV;        /* 本轮最大单体电压 */
+    uint16_t    cell_min_mV;        /* 本轮最小单体电压 */
+    uint16_t    cell_delta_mV;      /* max - min 压差 */
+
     fm_config_t cfg;
 } fm_ctx_t;
 
