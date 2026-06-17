@@ -1,0 +1,750 @@
+{
+  "Spacing": {
+    "Safe Spacing": {
+      "copperThickness1oz": {
+        "editName": "BMSv3_1oz_8mil",
+        "unit": "mil",
+        "isSetDefault": true,
+        "column": [
+          "Track",
+          "SMD Pad",
+          "TH Pad",
+          "SMD Test Point",
+          "TH Test Point",
+          "Via",
+          "Fill Region/Teardrop",
+          "Copper/Plane Zone",
+          "Slot Region",
+          "Line",
+          "Text/Image",
+          "Board Outline"
+        ],
+        "row": [
+          "Track",
+          "SMD Pad",
+          "TH Pad",
+          "SMD Test Point",
+          "TH Test Point",
+          "Via",
+          "Fill Region/Teardrop",
+          "Copper/Plane Zone",
+          "Slot Region",
+          "Line",
+          "Text/Image",
+          "Board Outline",
+          "Hole"
+        ],
+        "status": 0,
+        "tables": {
+          "1": {
+            "status": 1,
+            "content": [
+              [8],
+              [8, 8],
+              [8, 8, 8],
+              [8, 8, 8, 8],
+              [8, 8, 8, 8, 8],
+              [8, 8, 8, 8, 8, 8],
+              [8, 8, 8, 8, 8, 8, 8],
+              [10, 10, 10, 10, 10, 10, 10, 10],
+              [11.811, 8, 8, 8, 8, 8, 8, 10, 8],
+              [8, 8, 8, 8, 8, 8, 8, 10, 11.811, 8],
+              [8, 8, 8, 8, 8, 8, 8, 10, 8, 8, 8],
+              [12, 12, 12, 12, 12, 12, 12, 10, 12, 12, 12],
+              [8, 8, 8, 8, 8, 8, 8, 10, 8, 8, 8, 12]
+            ]
+          }
+        },
+        "isRule": true,
+        "categorayKey": "Safe Spacing",
+        "redStar": false
+      },
+      "copperThickness2oz": {
+        "editName": "BMSv3_2oz_outer",
+        "unit": "mil",
+        "isSetDefault": false,
+        "column": [
+          "Track",
+          "SMD Pad",
+          "TH Pad",
+          "SMD Test Point",
+          "TH Test Point",
+          "Via",
+          "Fill Region/Teardrop",
+          "Copper/Plane Zone",
+          "Slot Region",
+          "Line",
+          "Text/Image",
+          "Board Outline"
+        ],
+        "row": [
+          "Track",
+          "SMD Pad",
+          "TH Pad",
+          "SMD Test Point",
+          "TH Test Point",
+          "Via",
+          "Fill Region/Teardrop",
+          "Copper/Plane Zone",
+          "Slot Region",
+          "Line",
+          "Text/Image",
+          "Board Outline",
+          "Hole"
+        ],
+        "status": 0,
+        "tables": {
+          "1": {
+            "status": 1,
+            "content": [
+              [10],
+              [10, 10],
+              [10, 10, 10],
+              [10, 10, 10, 10],
+              [10, 10, 10, 10, 10],
+              [10, 10, 10, 10, 10, 10],
+              [10, 10, 10, 10, 10, 10, 10],
+              [12, 12, 12, 12, 12, 12, 12, 12],
+              [11.811, 10, 10, 10, 10, 10, 10, 12, 10],
+              [10, 10, 10, 10, 10, 10, 10, 12, 11.811, 10],
+              [10, 10, 10, 10, 10, 10, 10, 12, 10, 10, 10],
+              [15, 15, 15, 15, 15, 15, 15, 12, 15, 15, 15],
+              [10, 10, 10, 10, 10, 10, 10, 12, 10, 10, 10, 15]
+            ]
+          }
+        },
+        "isRule": true,
+        "categorayKey": "Safe Spacing",
+        "redStar": false
+      },
+      "rule1": {
+        "editName": "Power_HV_Isolation",
+        "unit": "mil",
+        "isSetDefault": false,
+        "column": [
+          "Track",
+          "SMD Pad",
+          "TH Pad",
+          "SMD Test Point",
+          "TH Test Point",
+          "Via",
+          "Fill Region/Teardrop",
+          "Copper/Plane Zone",
+          "Slot Region",
+          "Line",
+          "Text/Image",
+          "Board Outline"
+        ],
+        "row": [
+          "Track",
+          "SMD Pad",
+          "TH Pad",
+          "SMD Test Point",
+          "TH Test Point",
+          "Via",
+          "Fill Region/Teardrop",
+          "Copper/Plane Zone",
+          "Slot Region",
+          "Line",
+          "Text/Image",
+          "Board Outline",
+          "Hole"
+        ],
+        "status": 0,
+        "tables": {
+          "1": {
+            "status": 1,
+            "content": [
+              [15],
+              [15, 15],
+              [15, 15, 15],
+              [15, 15, 15, 15],
+              [15, 15, 15, 15, 15],
+              [15, 15, 15, 15, 15, 15],
+              [15, 15, 15, 15, 15, 15, 15],
+              [15, 15, 15, 15, 15, 15, 15, 15],
+              [11.811, 15, 15, 15, 15, 15, 15, 15, 15],
+              [15, 15, 15, 15, 15, 15, 15, 15, 11.811, 15],
+              [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15],
+              [12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12],
+              [15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 12]
+            ]
+          }
+        },
+        "isRule": true,
+        "categorayKey": "Safe Spacing",
+        "redStar": true,
+        "pageViewType": "SAFE_SPACING",
+        "editing": false
+      }
+    },
+    "Other Spacing": {
+      "otherClearance": {
+        "editName": "otherClearance",
+        "unit": "mil",
+        "isSetDefault": true,
+        "form": {
+          "device2device": 8,
+          "thru2Smd": 10,
+          "hole2Hole": 11.811
+        },
+        "isRule": true,
+        "categorayKey": "Other Spacing",
+        "redStar": false
+      }
+    }
+  },
+  "Physics": {
+    "Track": {
+      "copperThickness1oz": {
+        "editName": "Signal_8mil",
+        "unit": "mil",
+        "isSetDefault": true,
+        "form": {
+          "status": 1,
+          "data": {
+            "1": {
+              "minValue": 6,
+              "defaultValue": 8,
+              "maxValue": 200
+            },
+            "2": {
+              "minValue": 6,
+              "defaultValue": 8,
+              "maxValue": 200
+            },
+            "15": {
+              "minValue": 6,
+              "defaultValue": 8,
+              "maxValue": 200
+            },
+            "16": {
+              "minValue": 6,
+              "defaultValue": 8,
+              "maxValue": 200
+            }
+          }
+        },
+        "isRule": true,
+        "categorayKey": "Track",
+        "redStar": false
+      },
+      "0.2mm": {
+        "editName": "Signal_0.2mm",
+        "unit": "mil",
+        "isSetDefault": false,
+        "form": {
+          "status": 1,
+          "data": {
+            "1": {
+              "minValue": 6,
+              "defaultValue": 7.874,
+              "maxValue": 200
+            },
+            "2": {
+              "minValue": 6,
+              "defaultValue": 7.874,
+              "maxValue": 200
+            },
+            "15": {
+              "minValue": 6,
+              "defaultValue": 7.874,
+              "maxValue": 200
+            },
+            "16": {
+              "minValue": 6,
+              "defaultValue": 7.874,
+              "maxValue": 200
+            }
+          }
+        },
+        "isRule": true,
+        "categorayKey": "Track",
+        "redStar": false
+      },
+      "0.5mm_PWR": {
+        "editName": "Power_0.5mm",
+        "unit": "mil",
+        "isSetDefault": false,
+        "form": {
+          "status": 1,
+          "data": {
+            "1": {
+              "minValue": 8,
+              "defaultValue": 19.685,
+              "maxValue": 300
+            },
+            "2": {
+              "minValue": 8,
+              "defaultValue": 19.685,
+              "maxValue": 300
+            },
+            "15": {
+              "minValue": 8,
+              "defaultValue": 19.685,
+              "maxValue": 300
+            },
+            "16": {
+              "minValue": 8,
+              "defaultValue": 19.685,
+              "maxValue": 300
+            }
+          }
+        },
+        "isRule": true,
+        "categorayKey": "Track",
+        "redStar": false
+      },
+      "1.0mm_PWR": {
+        "editName": "Power_1.0mm",
+        "unit": "mil",
+        "isSetDefault": false,
+        "form": {
+          "status": 1,
+          "data": {
+            "1": {
+              "minValue": 8,
+              "defaultValue": 39.3701,
+              "maxValue": 300
+            },
+            "2": {
+              "minValue": 8,
+              "defaultValue": 39.3701,
+              "maxValue": 300
+            },
+            "15": {
+              "minValue": 8,
+              "defaultValue": 39.3701,
+              "maxValue": 300
+            },
+            "16": {
+              "minValue": 8,
+              "defaultValue": 39.3701,
+              "maxValue": 300
+            }
+          }
+        },
+        "isRule": true,
+        "categorayKey": "Track",
+        "redStar": false
+      },
+      "1.5mm_PWR": {
+        "editName": "Power_1.5mm",
+        "unit": "mil",
+        "isSetDefault": false,
+        "form": {
+          "status": 1,
+          "data": {
+            "1": {
+              "minValue": 8,
+              "defaultValue": 59.0551,
+              "maxValue": 300
+            },
+            "2": {
+              "minValue": 8,
+              "defaultValue": 59.0551,
+              "maxValue": 300
+            },
+            "15": {
+              "minValue": 8,
+              "defaultValue": 59.0551,
+              "maxValue": 300
+            },
+            "16": {
+              "minValue": 8,
+              "defaultValue": 59.0551,
+              "maxValue": 300
+            }
+          }
+        },
+        "isRule": true,
+        "categorayKey": "Track",
+        "redStar": false
+      },
+      "2.5mm_PWR": {
+        "editName": "Power_2.5mm",
+        "unit": "mil",
+        "isSetDefault": false,
+        "form": {
+          "status": 1,
+          "data": {
+            "1": {
+              "minValue": 8,
+              "defaultValue": 98.4252,
+              "maxValue": 300
+            },
+            "2": {
+              "minValue": 8,
+              "defaultValue": 98.4252,
+              "maxValue": 300
+            },
+            "15": {
+              "minValue": 8,
+              "defaultValue": 98.4252,
+              "maxValue": 300
+            },
+            "16": {
+              "minValue": 8,
+              "defaultValue": 98.4252,
+              "maxValue": 300
+            }
+          }
+        },
+        "isRule": true,
+        "categorayKey": "Track",
+        "redStar": false
+      },
+      "3.0mm_MAIN_PWR": {
+        "editName": "MainPower_3.0mm",
+        "unit": "mil",
+        "isSetDefault": false,
+        "form": {
+          "status": 1,
+          "data": {
+            "1": {
+              "minValue": 10,
+              "defaultValue": 118.1102,
+              "maxValue": 300
+            },
+            "2": {
+              "minValue": 10,
+              "defaultValue": 118.1102,
+              "maxValue": 300
+            },
+            "15": {
+              "minValue": 10,
+              "defaultValue": 118.1102,
+              "maxValue": 300
+            },
+            "16": {
+              "minValue": 10,
+              "defaultValue": 118.1102,
+              "maxValue": 300
+            }
+          }
+        },
+        "isRule": true,
+        "categorayKey": "Track",
+        "redStar": false
+      },
+      "copperThickness2oz": {
+        "editName": "Signal_2oz",
+        "unit": "mil",
+        "isSetDefault": false,
+        "form": {
+          "status": 1,
+          "data": {
+            "1": {
+              "minValue": 8,
+              "defaultValue": 10,
+              "maxValue": 300
+            },
+            "2": {
+              "minValue": 8,
+              "defaultValue": 10,
+              "maxValue": 300
+            },
+            "15": {
+              "minValue": 8,
+              "defaultValue": 10,
+              "maxValue": 300
+            },
+            "16": {
+              "minValue": 8,
+              "defaultValue": 10,
+              "maxValue": 300
+            }
+          }
+        },
+        "isRule": true,
+        "categorayKey": "Track",
+        "redStar": false
+      }
+    },
+    "Net Length Range": {
+      "netLength": {
+        "editName": "netLength",
+        "unit": "mil",
+        "isSetDefault": true,
+        "form": {
+          "netLengthMin": 0,
+          "netLengthMax": 0
+        },
+        "isRule": true,
+        "categorayKey": "Net Length Range",
+        "redStar": false
+      }
+    },
+    "Net Length Tolerance": {
+      "netLengthTolerance": {
+        "editName": "netLengthTolerance",
+        "unit": "mil",
+        "isSetDefault": true,
+        "form": {
+          "netLengthTolerance": 1000
+        },
+        "isRule": true,
+        "categorayKey": "Net Length Tolerance",
+        "redStar": false
+      }
+    },
+    "Differential Pair": {
+      "differentialPair": {
+        "editName": "diffPair_100ohm",
+        "unit": "mil",
+        "isSetDefault": true,
+        "form": {
+          "strokeWidthTables": {
+            "status": 1,
+            "data": {
+              "1": {
+                "minValue": 6,
+                "defaultValue": 8,
+                "maxValue": 20
+              },
+              "2": {
+                "minValue": 6,
+                "defaultValue": 8,
+                "maxValue": 20
+              }
+            }
+          },
+          "diffPairSpacingTables": {
+            "status": 1,
+            "data": {
+              "1": {
+                "minValue": 6,
+                "defaultValue": 8,
+                "maxValue": 20
+              },
+              "2": {
+                "minValue": 6,
+                "defaultValue": 8,
+                "maxValue": 20
+              }
+            }
+          },
+          "differentailPairLenTolerMax": 10
+        },
+        "isRule": true,
+        "categorayKey": "Differential Pair",
+        "redStar": false
+      }
+    },
+    "Blind/Buried Via": {
+      "blindVia": {
+        "editName": "blindVia",
+        "isSetDefault": true,
+        "table": [],
+        "isRule": true,
+        "categorayKey": "Blind/Buried Via",
+        "redStar": false
+      }
+    },
+    "Via Size": {
+      "viaSize": {
+        "editName": "Signal_Via_24x12",
+        "unit": "mil",
+        "isSetDefault": true,
+        "form": {
+          "viaOuterdiameterMin": 19.685,
+          "viaOuterdiameterMax": 393.7008,
+          "viaOuterdiameterDefault": 24.0158,
+          "viaInnerdiameterMin": 11.811,
+          "viaInnerdiameterMax": 248.0314,
+          "viaInnerdiameterDefault": 12.0078
+        },
+        "isRule": true,
+        "categorayKey": "Via Size",
+        "redStar": false
+      },
+      "powerVia": {
+        "editName": "Power_Via_28x14",
+        "unit": "mil",
+        "isSetDefault": false,
+        "form": {
+          "viaOuterdiameterMin": 23.622,
+          "viaOuterdiameterMax": 393.7008,
+          "viaOuterdiameterDefault": 27.5591,
+          "viaInnerdiameterMin": 11.811,
+          "viaInnerdiameterMax": 248.0314,
+          "viaInnerdiameterDefault": 13.7795
+        },
+        "isRule": true,
+        "categorayKey": "Via Size",
+        "redStar": false
+      }
+    }
+  },
+  "Plane": {
+    "Plane Zone": {
+      "innerPlane": {
+        "editName": "InnerPlane_Thermal",
+        "unit": "mil",
+        "isSetDefault": true,
+        "form": {
+          "status": 1,
+          "data": {
+            "1": {
+              "connectMode": 0,
+              "lineClearance": 10,
+              "lineWidth": 10,
+              "lineAngle": 90
+            },
+            "2": {
+              "connectMode": 0,
+              "lineClearance": 10,
+              "lineWidth": 10,
+              "lineAngle": 90
+            }
+          }
+        },
+        "isRule": true,
+        "categorayKey": "Plane Zone",
+        "redStar": false
+      }
+    },
+    "Copper Zone": {
+      "copperRegion": {
+        "editName": "Copper_Std_Thermal",
+        "unit": "mil",
+        "isSetDefault": true,
+        "form": {
+          "singleLayerPadModel": {
+            "status": 1,
+            "data": {
+              "1": {
+                "connectMode": 0,
+                "lineClearance": 10,
+                "lineWidth": 20,
+                "lineAngle": 90
+              },
+              "2": {
+                "connectMode": 0,
+                "lineClearance": 10,
+                "lineWidth": 20,
+                "lineAngle": 90
+              }
+            }
+          },
+          "multiLayerPadModel": {
+            "status": 1,
+            "data": {
+              "1": {
+                "connectMode": 0,
+                "lineClearance": 10,
+                "lineWidth": 10,
+                "lineAngle": 90
+              },
+              "2": {
+                "connectMode": 0,
+                "lineClearance": 10,
+                "lineWidth": 10,
+                "lineAngle": 90
+              }
+            }
+          },
+          "trackConnectModel": {
+            "status": 1,
+            "data": {
+              "1": {
+                "trackConnectMode": 0
+              }
+            }
+          }
+        },
+        "isRule": true,
+        "categorayKey": "Copper Zone",
+        "redStar": false
+      },
+      "copperPowerThermal": {
+        "editName": "Copper_Power_Thermal_40mil",
+        "unit": "mil",
+        "isSetDefault": false,
+        "form": {
+          "singleLayerPadModel": {
+            "status": 1,
+            "data": {
+              "1": {
+                "connectMode": 0,
+                "lineClearance": 15,
+                "lineWidth": 40,
+                "lineAngle": 90
+              },
+              "2": {
+                "connectMode": 0,
+                "lineClearance": 15,
+                "lineWidth": 40,
+                "lineAngle": 90
+              }
+            }
+          },
+          "multiLayerPadModel": {
+            "status": 1,
+            "data": {
+              "1": {
+                "connectMode": 0,
+                "lineClearance": 15,
+                "lineWidth": 40,
+                "lineAngle": 90
+              },
+              "2": {
+                "connectMode": 0,
+                "lineClearance": 15,
+                "lineWidth": 40,
+                "lineAngle": 90
+              }
+            }
+          },
+          "trackConnectModel": {
+            "status": 1,
+            "data": {
+              "1": {
+                "trackConnectMode": 0
+              }
+            }
+          }
+        },
+        "isRule": true,
+        "categorayKey": "Copper Zone",
+        "redStar": false
+      }
+    }
+  },
+  "Expansion": {
+    "Paste Mask Expansion": {
+      "pasteMaskExpansion": {
+        "editName": "pasteMaskExpansion",
+        "unit": "mil",
+        "isSetDefault": true,
+        "form": {
+          "padToplayerExpansion": 0,
+          "padBottomlayerExpansion": 0,
+          "testPointToplayerExpansion": -1000,
+          "testPointBottomlayerExpansion": -1000
+        },
+        "isRule": true,
+        "categorayKey": "Paste Mask Expansion",
+        "redStar": false
+      }
+    },
+    "Solder Mask Expansion": {
+      "solderMaskExpansion": {
+        "editName": "solderMaskExpansion",
+        "unit": "mil",
+        "isSetDefault": true,
+        "form": {
+          "padToplayerExpansion": 2,
+          "padBottomlayerExpansion": 2,
+          "viaToplayerExpansion": -1000,
+          "viaBottomlayerExpansion": -1000,
+          "testPointToplayerExpansion": 2,
+          "testPointBottomlayerExpansion": 2
+        },
+        "isRule": true,
+        "categorayKey": "Solder Mask Expansion",
+        "redStar": false
+      }
+    }
+  }
+}

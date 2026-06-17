@@ -21,34 +21,39 @@ static inline void lcd_dc_h(void)  { HAL_GPIO_WritePin(LCD_DC_PORT,  LCD_DC_PIN,
 static inline void lcd_rst_l(void) { HAL_GPIO_WritePin(LCD_RST_PORT, LCD_RST_PIN, GPIO_PIN_RESET); }
 static inline void lcd_rst_h(void) { HAL_GPIO_WritePin(LCD_RST_PORT, LCD_RST_PIN, GPIO_PIN_SET);   }
 
+static bool s_spi_ok = true;
+
 static void lcd_cmd(uint8_t c)
 {
     lcd_dc_l(); lcd_cs_l();
-    HAL_SPI_Transmit(&hspi1, &c, 1, 20);
+    if (HAL_SPI_Transmit(&hspi1, &c, 1, 50) != HAL_OK) s_spi_ok = false;
     lcd_cs_h();
 }
 
 static void lcd_data(uint8_t d)
 {
     lcd_dc_h(); lcd_cs_l();
-    HAL_SPI_Transmit(&hspi1, &d, 1, 20);
+    if (HAL_SPI_Transmit(&hspi1, &d, 1, 50) != HAL_OK) s_spi_ok = false;
     lcd_cs_h();
 }
 
 static void lcd_data_buf(const uint8_t *b, uint16_t n)
 {
     lcd_dc_h(); lcd_cs_l();
-    HAL_SPI_Transmit(&hspi1, (uint8_t *)b, n, 200);
+    if (HAL_SPI_Transmit(&hspi1, (uint8_t *)b, n, 500) != HAL_OK) s_spi_ok = false;
     lcd_cs_h();
 }
 
 bool lcd_init(void)
 {
-    /* 硬复位 */
+    s_spi_ok = true;
+
+    /* 硬复位 (与厂家 demo 完全一致的时序) */
     lcd_cs_h();
     lcd_rst_h(); HAL_Delay(1);
     lcd_rst_l(); HAL_Delay(10);
     lcd_rst_h(); HAL_Delay(120);
+    HAL_Delay(120);   /* 厂家 demo 在复位后有额外 120ms */
 
     /* 初始化序列 (ST7796 厂家 TN code) */
     lcd_cmd(0x11); HAL_Delay(120);                /* Sleep Out */
@@ -84,7 +89,7 @@ bool lcd_init(void)
     HAL_Delay(120);
     lcd_cmd(0x29);                                /* Display ON */
     HAL_Delay(20);
-    return true;
+    return s_spi_ok;
 }
 
 void lcd_set_window(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)

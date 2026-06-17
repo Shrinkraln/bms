@@ -1,0 +1,203 @@
+{
+  "version": "3.0",
+  "date": "2026-06-15",
+  "source_netlist": "Netlist_PCB1_2026-06-14.tel",
+  "design_rules": "Config_DesignRule_PCB1_2026-06-15_SIMPLIFIED.json",
+  "total_networks": 96,
+  "classes": {
+    "PWR": {
+      "track_template": "Power_1.0mm",
+      "via_template": "Power_Via_28x14",
+      "spacing_rule": "PWR_to_SIG_15mil",
+      "copper_thermal": "Copper_Power_Thermal_40mil",
+      "count": 9,
+      "networks": [
+        "B+",
+        "PACK-",
+        "$2N586",
+        "NET1",
+        "$2N559",
+        "5V0",
+        "3V3",
+        "BQ_3V3",
+        "SRN_INA"
+      ],
+      "notes": [
+        "B+/PACK-/$2N586/NET1 + SRN_INA power segment -> manual widen to >=3mm",
+        "$2N559(SW) -> copper area <=50mm2, short connection U5.1->D4->L1",
+        "SRN_INA one-net-two-widths: power segment 3mm manual + Kelvin tap 10mil"
+      ]
+    },
+    "SIG": {
+      "track_template": "Signal_10mil",
+      "via_template": "Signal_Via_24x12",
+      "spacing_rule": "Default_10mil",
+      "count": 86,
+      "networks_by_group": {
+        "precision_analog": [
+          "REF_3V3",
+          "DAC_OUT_A",
+          "DAC_OUT_B",
+          "SRN_NET",
+          "SRP_NET",
+          "SRN_BQ34",
+          "SRP_BQ34",
+          "$2N426",
+          "$2N430",
+          "$2N434",
+          "$2N456",
+          "$2N457",
+          "$2N560",
+          "$2N561",
+          "$2N578"
+        ],
+        "cell_sampling": [
+          "VC0_NET",
+          "VC1_NET",
+          "VC2_NET",
+          "VC3_NET",
+          "VC4_NET",
+          "VC5_NET",
+          "NET2",
+          "NET3",
+          "NET4",
+          "NET5",
+          "$2N111",
+          "$2N553",
+          "$2N84",
+          "$2N90",
+          "$2N95"
+        ],
+        "general_analog": [
+          "NTC1_AIN",
+          "BQ76_BAT",
+          "BQ76_ALERT",
+          "$2N114",
+          "$2N536",
+          "$2N574",
+          "$2N579",
+          "$2N580"
+        ],
+        "gate_drive": [
+          "DSG_GATE",
+          "CHG_GATE"
+        ],
+        "i2c_bus": [
+          "I2C_SCL",
+          "I2C_SDA",
+          "PC8_TF_SCL",
+          "PC9_TF_SDA"
+        ],
+        "spi_bus": [
+          "PA5_LCD_SCK",
+          "PA6_LCD_MISO",
+          "PA7_LCD_MOSI",
+          "PB0_LCD_DC",
+          "PB1_LCD_CS",
+          "PB2_LCD_RST",
+          "PB10_DAC_CS",
+          "PB13_DAC_SCL",
+          "PB15_DAC_MOSI"
+        ],
+        "can_usb": [
+          "CAN_H",
+          "CAN_L",
+          "UD+",
+          "UD-",
+          "D+",
+          "D-",
+          "CC1",
+          "CC2",
+          "$2N485"
+        ],
+        "uart_debug": [
+          "PA2_UART_DBG_TX",
+          "PA3_UART_DBG_RX"
+        ],
+        "digital_io_interrupt": [
+          "PA0_TOUCH_RST",
+          "PA8_TOUCH_INT",
+          "PA11_CAN_RX",
+          "PA12_CAN_TX",
+          "PB4_LED_GREEN",
+          "PB5_LED_RED",
+          "PB8_BUZZER_CTRL",
+          "PB9_BQ76_BOOT",
+          "PB12_KEY1",
+          "CH_V3",
+          "$2N246",
+          "$2N249",
+          "$2N252",
+          "$2N571",
+          "$2N573"
+        ],
+        "oscillator": [
+          "CH_XI",
+          "CH_XO"
+        ],
+        "power_mgmt_small_signal": [
+          "$2N154",
+          "$2N157",
+          "$2N158",
+          "$2N160",
+          "$2N165"
+        ]
+      },
+      "flat_networks_for_import": [
+        "REF_3V3", "DAC_OUT_A", "DAC_OUT_B", "SRN_NET", "SRP_NET",
+        "SRN_BQ34", "SRP_BQ34", "$2N426", "$2N430", "$2N434",
+        "$2N456", "$2N457", "$2N560", "$2N561", "$2N578",
+        "VC0_NET", "VC1_NET", "VC2_NET", "VC3_NET", "VC4_NET",
+        "VC5_NET", "NET2", "NET3", "NET4", "NET5",
+        "$2N111", "$2N553", "$2N84", "$2N90", "$2N95",
+        "NTC1_AIN", "BQ76_BAT", "BQ76_ALERT", "$2N114", "$2N536",
+        "$2N574", "$2N579", "$2N580",
+        "DSG_GATE", "CHG_GATE",
+        "I2C_SCL", "I2C_SDA", "PC8_TF_SCL", "PC9_TF_SDA",
+        "PA5_LCD_SCK", "PA6_LCD_MISO", "PA7_LCD_MOSI",
+        "PB0_LCD_DC", "PB1_LCD_CS", "PB2_LCD_RST",
+        "PB10_DAC_CS", "PB13_DAC_SCL", "PB15_DAC_MOSI",
+        "CAN_H", "CAN_L", "UD+", "UD-", "D+", "D-",
+        "CC1", "CC2", "$2N485",
+        "PA2_UART_DBG_TX", "PA3_UART_DBG_RX",
+        "PA0_TOUCH_RST", "PA8_TOUCH_INT", "PA11_CAN_RX", "PA12_CAN_TX",
+        "PB4_LED_GREEN", "PB5_LED_RED", "PB8_BUZZER_CTRL", "PB9_BQ76_BOOT",
+        "PB12_KEY1", "CH_V3", "$2N246", "$2N249", "$2N252",
+        "$2N571", "$2N573",
+        "CH_XI", "CH_XO",
+        "$2N154", "$2N157", "$2N158", "$2N160", "$2N165"
+      ]
+    },
+    "GND": {
+      "count": 1,
+      "networks": ["GND"],
+      "note": "No routing, L1/L4 copper pour + L2 solid GND plane (no cuts)"
+    }
+  },
+  "spacing_rules": {
+    "default": {
+      "name": "BMSv3_Default_10mil",
+      "value": "10mil",
+      "applies_to": "SIG<->SIG / PWR<->PWR / Any<->GND"
+    },
+    "pwr_to_sig": {
+      "name": "PWR_to_SIG_15mil",
+      "value": "15mil",
+      "applies_to": "PWR class <-> SIG class"
+    }
+  },
+  "region_rules": {
+    "Analog_Quiet": {
+      "covers": "INA226 + OPA2188 + DAC8552 + REF3033 + BQ76920 + BQ34Z100 + TMP117",
+      "rule": "No PWR class nets allowed, SIG and GND only"
+    }
+  },
+  "special_handling": [
+    {"id": 1, "item": "Kelvin tap from Rsns pad end", "reason": "Shared power copper -> 5% measurement error"},
+    {"id": 2, "item": "D2/D8 close to MOSFET gate <5mm", "reason": "Parasitic inductance delays TVS clamping"},
+    {"id": 3, "item": "B+/PACK-/$2N586/NET1 + SRN_INA power segment manual widen to >=3mm", "reason": "3A continuous current, 1mm insufficient"},
+    {"id": 4, "item": "Decoupling cap 100nF <5mm from IC power pin", "reason": "Parasitic inductance kills HF decoupling"},
+    {"id": 5, "item": "SW copper area <=50mm2 (only U5.1->D4->L1)", "reason": "Excess area significantly increases radiation"},
+    {"id": 6, "item": "I2C daisy chain not star; measure and touch I2C independent", "reason": "Stub reflection + address conflict"}
+  ]
+}
